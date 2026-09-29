@@ -1,0 +1,4 @@
+exports_files([
+    "__init__.py",
+    "requirements_bazel.txt",
+])

@@ -1,0 +1,42 @@
+load("@pypi//:requirements.bzl", "requirement")
+load("@rules_python//python:defs.bzl", "py_binary", "py_library", "py_test")
+
+# The replay tooling: standard library only, runs on the hermetic Python 3.11 toolchain.
+py_library(
+    name = "replay_lib",
+    srcs = glob(
+        ["*.py"],
+        exclude = ["__main__.py"],
+    ) + ["//tools:__init__.py"],
+    data = ["//configs"],
+    imports = ["../.."],
+    visibility = ["//visibility:public"],
+)
+
+# bazel run //tools/replay -- run scene-0061
+py_binary(
+    name = "replay",
+    srcs = ["__main__.py"],
+    main = "__main__.py",
+    deps = [":replay_lib"],
+)
+
+[py_test(
+    name = t,
+    size = "small",
+    srcs = [
+        "tests/pytest_main.py",
+        "tests/" + t + ".py",
+    ],
+    args = ["$(location tests/" + t + ".py)"],
+    main = "tests/pytest_main.py",
+    deps = [
+        ":replay_lib",
+        requirement("pytest"),
+    ],
+) for t in [
+    "test_oracle",
+    "test_ci",
+    "test_config",
+    "test_mcaplite",
+]]

@@ -88,9 +88,20 @@ def resolve(spec: str | None) -> Drop:
         raise ResolveError("no build drops yet. Build one with: replay drop build HEAD")
     if spec in (None, "latest"):
         return drops[-1]
+    exact = [d for d in drops if d.name == spec or (len(spec) >= 7 and d.commit.startswith(spec))]
+    if exact:
+        return exact[-1]
     v = spec.removeprefix("v")
-    hits = [d for d in drops if d.version == v or d.commit.startswith(spec) or d.name == spec]
+    hits = [d for d in drops if d.version == v]
+    if len(hits) > 1:
+        # several builds share a version (release tag, candidates, branches): the tag decides
+        tag = subprocess.run(["git", "rev-parse", "--verify", "--quiet", f"v{v}^{{commit}}"], cwd=paths.ROOT,
+                             capture_output=True, text=True, check=False).stdout.strip()
+        tagged = [d for d in hits if tag and tag.startswith(d.commit.removesuffix("-dirty"))]
+        if len(tagged) == 1:
+            return tagged[0]
+        raise ResolveError(f"'{spec}' is ambiguous: {', '.join(d.name for d in hits)}. Name the drop or commit.")
     if not hits:
         raise ResolveError(f"no drop matches '{spec}'. Have: {', '.join(d.name for d in drops)}. "
                            f"Build it with: replay drop build <git-ref>")
-    return hits[-1]
+    return hits[0]

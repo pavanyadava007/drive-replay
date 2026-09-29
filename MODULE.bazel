@@ -8,3 +8,11 @@ bazel_dep(name = "googletest", version = "1.17.0.bcr.2", dev_dependency = True)
 
 python = use_extension("@rules_python//python/extensions:python.bzl", "python")
 python.toolchain(is_default = True, python_version = "3.11")
+
+pip = use_extension("@rules_python//python/extensions:pip.bzl", "pip", dev_dependency = True)
+pip.parse(
+    hub_name = "pypi",
+    python_version = "3.11",
+    requirements_lock = "//tools:requirements_bazel.txt",
+)
+use_repo(pip, "pypi")
