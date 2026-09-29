@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# Convenience wrapper: ./replay <command>. Same as `bazel run //tools/replay -- <command>`.
+here="$(cd "$(dirname "$0")" && pwd)"
+py="${DRIVE_REPLAY_PYTHON:-}"
+if [ -z "$py" ]; then
+  for c in "$here/.venv/bin/python" python3.12 python3.11 python3; do
+    if command -v "$c" >/dev/null 2>&1 && "$c" -c 'import sys; sys.exit(sys.version_info < (3, 11))'; then py="$c"; break; fi
+  done
+fi
+[ -z "$py" ] && { echo "replay needs Python >= 3.11" >&2; exit 2; }
+cd "$here" && exec "$py" -m tools.replay "$@"

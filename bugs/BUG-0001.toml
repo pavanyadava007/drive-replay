@@ -1,0 +1,12 @@
+id = "BUG-0001"
+title = "FCW warns on oncoming cars on a curving road"
+recording = "scene-0103"
+window_s = [0.0, 3.0]
+reported_on = "0.1.0"
+expect = { kind = "no_false_warning" }
+notes = """
+Found by the replay suite on the first drop. Two warnings (0.59 s and 1.98 s) with TTC about 2.0-2.1 s,
+closing speed about 16 m/s at 8.5 m/s ego speed: the targets move towards the car at about 7-8 m/s over
+ground. Ground truth: oncoming cars, which pass 3.7 m to the left. They sat inside the straight corridor
+only because the road bends. Oncoming traffic is outside the scope of a forward collision warning.
+"""

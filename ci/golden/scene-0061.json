@@ -1,0 +1,28 @@
+{
+ "scene": "scene-0061",
+ "stack_version": "0.1.0",
+ "commit": "45b71befcf41",
+ "reason": "first baseline, stack 0.1.0; scene-0061 and scene-0103 carry known issues BUG-0002 and BUG-0001",
+ "event_digest": "c3f72a3486b4c0d1",
+ "state_digest": "608010ca66789fed",
+ "events": [
+  {
+   "t_us": 1532402934456585,
+   "t_s": 6.809,
+   "kind": "fcw_warning_on",
+   "track": 51,
+   "ttc": 2.074,
+   "range": 11.62,
+   "closing": 5.6
+  },
+  {
+   "t_us": 1532402934906991,
+   "t_s": 7.259,
+   "kind": "fcw_warning_off",
+   "track": 593,
+   "ttc": 3.768,
+   "range": 18.61,
+   "closing": 4.94
+  }
+ ]
+}

@@ -41,7 +41,7 @@ def read_pcd(path: Path) -> np.ndarray:
         if line and not line.startswith("#"):
             k, *v = line.split()
             meta[k] = v
-    dtype = np.dtype([(n, PCD_TYPES[(t, int(s))]) for n, t, s in zip(meta["FIELDS"], meta["TYPE"], meta["SIZE"])])
+    dtype = np.dtype([(n, PCD_TYPES[(t, int(s))]) for n, t, s in zip(meta["FIELDS"], meta["TYPE"], meta["SIZE"], strict=True)])
     n = int(meta["POINTS"][0])
     return np.frombuffer(body[: n * dtype.itemsize], dtype=dtype)
 
@@ -62,7 +62,7 @@ def r4(v: float) -> float:
 class NuScenes:
     def __init__(self, root: Path, version: str = "v1.0-mini"):
         self.root = root
-        t = lambda name: json.loads((root / version / f"{name}.json").read_text())  # noqa: E731
+        t = lambda name: json.loads((root / version / f"{name}.json").read_text())
         self.scene = t("scene")
         self.sample = {r["token"]: r for r in t("sample")}
         self.sample_data = {r["token"]: r for r in t("sample_data")}

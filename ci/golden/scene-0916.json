@@ -1,0 +1,9 @@
+{
+ "scene": "scene-0916",
+ "stack_version": "0.1.0",
+ "commit": "45b71befcf41",
+ "reason": "first baseline, stack 0.1.0; scene-0061 and scene-0103 carry known issues BUG-0002 and BUG-0001",
+ "event_digest": "14650fb0739d0383",
+ "state_digest": "3f2e63e41cf0f122",
+ "events": []
+}
