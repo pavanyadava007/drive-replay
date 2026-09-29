@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>drive-replay</title>
+<meta name="description" content="Replay recorded drives through an ADAS stack on x86: one run command, bug replay, replay CI with PASS/FAIL verdicts.">
+<style>
+:root {
+  --bg: #f7f7f5; --panel: #ffffff; --ink: #1d1f23; --muted: #5d636e; --line: #e2e3e0;
+  --accent: #2a5db0; --pass: #1f7a4d; --fail: #b3261e; --warn: #9a6700; --grid: #eceae6;
+  --s1: #2a5db0; --s2: #c2410c; --s3: #1f7a4d; --s4: #7c3aed; --truth: #6b7280;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111317; --panel: #181b20; --ink: #e8e9eb; --muted: #9aa1ad; --line: #2a2e35;
+    --accent: #7aa2ff; --pass: #4cc38a; --fail: #ff6b61; --warn: #e3b341; --grid: #22262c;
+    --s1: #7aa2ff; --s2: #fb923c; --s3: #4cc38a; --s4: #b794f6; --truth: #9ca3af;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111317; --panel: #181b20; --ink: #e8e9eb; --muted: #9aa1ad; --line: #2a2e35;
+  --accent: #7aa2ff; --pass: #4cc38a; --fail: #ff6b61; --warn: #e3b341; --grid: #22262c;
+  --s1: #7aa2ff; --s2: #fb923c; --s3: #4cc38a; --s4: #b794f6; --truth: #9ca3af;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; }
+main { max-width: 1080px; margin: 0 auto; padding: 28px 16px 64px; }
+h1 { font-size: 30px; margin: 0 0 4px; letter-spacing: -0.01em; }
+h2 { font-size: 19px; margin: 36px 0 10px; }
+p { margin: 8px 0; }
+.lead { color: var(--muted); max-width: 760px; }
+a { color: var(--accent); }
+.links a { margin-right: 14px; }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-top: 16px; }
+.card b { display: block; font-size: 22px; }
+.card span { color: var(--muted); font-size: 13px; }
+table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { color: var(--muted); font-weight: 600; }
+.scroll { overflow-x: auto; }
+.v { font-family: var(--mono); font-size: 12px; font-weight: 600; padding: 1px 6px; border-radius: 4px; white-space: nowrap; }
+.PASS { color: var(--pass); } .FAIL { color: var(--fail); } .WAIVED { color: var(--warn); }
+.controls { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; margin-bottom: 10px; }
+select { font: inherit; padding: 4px 6px; background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; max-width: 100%; }
+label.chk { display: inline-flex; gap: 6px; align-items: center; font-size: 14px; }
+.swatch { display: inline-block; width: 12px; height: 3px; border-radius: 2px; }
+svg text { fill: var(--muted); font-size: 11px; }
+.events { font-family: var(--mono); font-size: 12.5px; }
+pre { font-family: var(--mono); font-size: 12.5px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 12px; overflow-x: auto; }
+.bug { margin-bottom: 14px; }
+.bug h3 { font-size: 15px; margin: 0 0 6px; }
+.note { color: var(--muted); font-size: 13px; }
+.theme { float: right; font-size: 13px; background: none; border: 1px solid var(--line); color: var(--muted); border-radius: 6px; padding: 3px 8px; cursor: pointer; }
+</style>
+</head>
+<body>
+<main>
+  <button class="theme" id="theme" type="button">theme</button>
+  <h1>drive-replay</h1>
+  <p class="lead">Recorded drives replayed through an ADAS stack on x86. One run command that resolves everything
+  itself, bug replay that reproduces an issue from its recording and proves the fix, and a replay CI that gives
+  every build drop a PASS or FAIL verdict. Stack under test: a C++17 radar forward collision warning, built with Bazel.
+  Recordings: 10 real nuScenes drives (front radar) plus 3 must-warn cases with an injected target.</p>
+  <p class="links"><a href="https://github.com/pavanyadava007/drive-replay">Code on GitHub</a>
+  <a href="https://github.com/pavanyadava007/drive-replay/blob/main/docs/RESULTS.md">docs/RESULTS.md</a></p>
+  <div class="cards" id="cards"></div>
+
+  <h2>CI verdict per build drop</h2>
+  <p class="note">Every drop replayed through the current suite: runs, deterministic (two replays, same digests),
+  requirements (ground-truth oracle) and regression (golden baselines). Hover a FAIL for the reason.</p>
+  <div class="panel scroll"><table id="matrix"></table></div>
+
+  <h2>Replay timeline</h2>
+  <div class="panel">
+    <div class="controls">
+      <select id="scene" aria-label="recording"></select>
+      <span id="drops"></span>
+    </div>
+    <div class="scroll"><svg id="chart" width="1000" height="330" role="img" aria-label="time to collision over time"></svg></div>
+    <p class="note" id="desc"></p>
+    <div class="events" id="events"></div>
+  </div>
+
+  <h2>Bug replays</h2>
+  <div id="bugs"></div>
+
+  <h2>Pre-roll study</h2>
+  <p class="note">A bug window starts 0.1 s before a known warning. Does the window replay give exactly the events of
+  the whole-drive replay? Without pre-roll the tracker starts cold and the warning moves. Note the 1.0 s row of the
+  stopped-car case: more pre-roll is not always closer, which is why <code>replay bug</code> checks fidelity every time.</p>
+  <div class="panel scroll"><table id="preroll"></table></div>
+
+  <h2>Throughput and determinism</h2>
+  <div class="panel scroll"><table id="tp"></table></div>
+  <p class="note" id="host"></p>
+
+  <h2>The run command</h2>
+<pre>$ ./replay run 61 --drop v0.1.0
+recording : scene-0061  (data/recordings/scene-0061.mcap, sha256 63639827e136, vehicle n015)
+drop      : v0.1.0-45b71befcf41  (stack 0.1.0, commit 45b71befcf41, sha256 afbf8d3042c4)
+config    : configs/fcw_default.json
+window    : whole recording
+
+247 cycles in 0.22 s (cycle p50 0.64 ms, p99 1.27 ms), digests events c3f72a3486b4c0d1 state 608010ca66789fed
+     6.81 s  fcw_warning_on     track 51    TTC 2.07 s  range 11.6 m  closing 5.6 m/s
+  oracle: warning at 6.81 s is FALSE (nothing in the driven path)
+requirements met: NO (1 false, 0 missed, 0 not radar-observable)</pre>
+
+  <p class="note">Data: nuScenes v1.0-mini (CC BY-NC-SA 4.0, nuscenes.org). This page shows derived numbers only.
+  Timings are x86 replay timings, not an in-car target. Code: MIT.</p>
+</main>
+<script src="app.js"></script>
+</body>
+</html>

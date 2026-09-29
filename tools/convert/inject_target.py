@@ -207,7 +207,7 @@ def main() -> None:
     ap.add_argument("--catalog", type=Path, default=Path("recordings/catalog.json"))
     a = ap.parse_args()
     entry = inject(a.src, a.dst, a.kind, a)
-    cat = json.loads(a.catalog.read_text())
+    cat = json.loads(a.catalog.read_text()) if a.catalog.exists() else {"recordings": []}
     cat["recordings"] = [e for e in cat["recordings"] if e["scene"] != entry["scene"]] + [entry]
     a.catalog.write_text(json.dumps(cat, indent=1) + "\n")
     print(f"{entry['scene']}: sha256 {entry['sha256'][:12]}, {entry['injected']}")

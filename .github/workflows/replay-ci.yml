@@ -1,0 +1,82 @@
+# Every push, pull request and tag is a build drop: build and unit-test it with Bazel, then replay the whole
+# suite through it and publish a PASS / FAIL verdict (step summary + JUnit). A FAIL blocks the merge.
+name: replay-ci
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build-drop:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: bazel-contrib/setup-bazel@0.15.0
+        with:
+          bazelisk-cache: true
+          disk-cache: ${{ github.workflow }}
+          repository-cache: true
+      - name: Unit tests (C++ GoogleTest + Python pytest, all through Bazel)
+        run: bazel test //...
+      - name: Build the drop (optimised, stamped with the commit)
+        run: |
+          bazel build --config=drop //stack:replay_main
+          mkdir -p drop && cp "$(bazel cquery --config=drop --output=files //stack:replay_main)" drop/replay_main
+          drop/replay_main --version
+      - uses: actions/upload-artifact@v4
+        with:
+          name: drop
+          path: drop/replay_main
+
+  replay-suite:
+    needs: build-drop
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Cache recordings (keyed on the catalogue, i.e. on the sha256 of every recording)
+        id: rec
+        uses: actions/cache@v4
+        with:
+          path: data/recordings
+          key: recordings-${{ hashFiles('recordings/catalog.json', 'tools/convert/**') }}
+      - name: Build recordings from nuScenes v1.0-mini (radar and tables only)
+        if: steps.rec.outputs.cache-hit != 'true'
+        run: |
+          pip install -r tools/convert/requirements.txt
+          mkdir -p /tmp/nuscenes
+          curl -sSfL https://www.nuscenes.org/data/v1.0-mini.tgz \
+            | tar -xz -C /tmp/nuscenes --wildcards 'v1.0-mini/*' 'samples/RADAR_FRONT/*' 'sweeps/RADAR_FRONT/*'
+          scripts/make_recordings.sh /tmp/nuscenes data/recordings
+      - uses: actions/download-artifact@v4
+        with:
+          name: drop
+          path: drop
+      - name: Replay suite
+        run: |
+          chmod +x drop/replay_main
+          ./replay drop import drop/replay_main
+          ./replay ci --drop latest --out runs/ci --junit junit.xml --summary "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: replay-ci-report
+          path: |
+            junit.xml
+            runs/ci/ci_report.json
+            runs/ci/summary.md
+
+  lint:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install ruff && ruff check tools scripts
