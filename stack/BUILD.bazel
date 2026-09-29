@@ -1,0 +1,90 @@
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_test")
+
+package(default_visibility = ["//visibility:public"])
+
+COPTS = ["-Wall", "-Wextra", "-Werror"]
+
+# Version and commit baked into the binary. Values come from tools/workspace_status.sh when built with --stamp
+# (drop builds); plain developer builds say "unstamped".
+genrule(
+    name = "build_info_gen",
+    srcs = ["VERSION"],
+    outs = ["build_info.h"],
+    cmd = """
+        commit=$$({ grep -s '^STABLE_GIT_COMMIT ' bazel-out/stable-status.txt || true; } | cut -d' ' -f2 || true);
+        dirty=$$({ grep -s '^STABLE_GIT_DIRTY ' bazel-out/stable-status.txt || true; } | cut -d' ' -f2 || true);
+        [ -z "$$commit" ] && commit=unstamped;
+        [ "$$dirty" = "1" ] && commit="$$commit-dirty";
+        {
+          echo '#pragma once';
+          echo "namespace dr { inline constexpr const char* kVersion = \\"$$(cat $(location VERSION))\\";";
+          echo "inline constexpr const char* kGitCommit = \\"$$commit\\"; }";
+        } > $@
+    """,
+    stamp = -1,
+)
+
+cc_library(
+    name = "core",
+    srcs = [
+        "fcw.cc",
+        "hungarian.cc",
+        "params.cc",
+        "pipeline.cc",
+        "radar_frontend.cc",
+        "tracker.cc",
+    ],
+    hdrs = [
+        "fcw.h",
+        "hungarian.h",
+        "msgs.h",
+        "params.h",
+        "pipeline.h",
+        "radar_frontend.h",
+        "tracker.h",
+    ],
+    copts = COPTS,
+    deps = ["@nlohmann_json//:json"],
+)
+
+cc_library(
+    name = "recording",
+    srcs = ["recording.cc"],
+    hdrs = ["recording.h"],
+    copts = ["-Wall"],  # the MCAP implementation header does not build with -Wextra -Werror
+    deps = [
+        ":core",
+        "@mcap",
+        "@nlohmann_json//:json",
+    ],
+)
+
+cc_binary(
+    name = "replay_main",
+    srcs = [
+        "replay_main.cc",
+        ":build_info_gen",
+    ],
+    copts = COPTS,
+    deps = [
+        ":core",
+        ":recording",
+    ],
+)
+
+[cc_test(
+    name = name,
+    size = "small",
+    srcs = [name + ".cc"],
+    copts = COPTS,
+    deps = [
+        ":core",
+        "@googletest//:gtest_main",
+    ],
+) for name in [
+    "hungarian_test",
+    "tracker_test",
+    "fcw_test",
+    "radar_frontend_test",
+    "params_test",
+]]

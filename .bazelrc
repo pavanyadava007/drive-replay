@@ -1,0 +1,7 @@
+common --enable_bzlmod
+build --cxxopt=-std=c++17 --host_cxxopt=-std=c++17
+build --workspace_status_command=tools/workspace_status.sh
+# drop builds: optimised and stamped with the commit
+build:drop --compilation_mode=opt --stamp
+test --test_output=errors
+try-import %workspace%/user.bazelrc

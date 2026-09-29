@@ -1,0 +1,9 @@
+/bazel-*
+/data/
+/runs/
+/.drops/
+/.venv/
+__pycache__/
+*.pyc
+/user.bazelrc
+/site/data/

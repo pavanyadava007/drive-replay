@@ -1,0 +1,177 @@
+{
+ "source": "nuScenes v1.0-mini",
+ "licence": "CC BY-NC-SA 4.0",
+ "converter": "tools/convert/nuscenes_to_mcap.py",
+ "recordings": [
+  {
+   "scene": "scene-0061",
+   "file": "scene-0061.mcap",
+   "sha256": "63639827e136479091251334123352b3e7f3c518fcab407952adeecc388e60a6",
+   "bytes": 2502079,
+   "duration_s": 19.15,
+   "messages": {
+    "/meta": 1,
+    "/calib/radar_front": 1,
+    "/ego/state": 382,
+    "/radar/front": 247,
+    "/gt/objects": 39
+   },
+   "vehicle": "n015",
+   "location": "singapore-onenorth",
+   "description": "Parked truck, construction, intersection, turn left, following a van"
+  },
+  {
+   "scene": "scene-0103",
+   "file": "scene-0103.mcap",
+   "sha256": "796f03a34f2f432acddcd6df515e0d6fabd0ede85d4e51c9ec6cd058a5293654",
+   "bytes": 2140515,
+   "duration_s": 19.429,
+   "messages": {
+    "/meta": 1,
+    "/calib/radar_front": 1,
+    "/ego/state": 389,
+    "/radar/front": 266,
+    "/gt/objects": 40
+   },
+   "vehicle": "n008",
+   "location": "boston-seaport",
+   "description": "Many peds right, wait for turning car, long bike rack left, cyclist"
+  },
+  {
+   "scene": "scene-0553",
+   "file": "scene-0553.mcap",
+   "sha256": "3ee85985dec9c705ea474221c13486f6ec6c8eb30b46d61860eaff670233f515",
+   "bytes": 2017477,
+   "duration_s": 19.932,
+   "messages": {
+    "/meta": 1,
+    "/calib/radar_front": 1,
+    "/ego/state": 398,
+    "/radar/front": 273,
+    "/gt/objects": 41
+   },
+   "vehicle": "n008",
+   "location": "boston-seaport",
+   "description": "Wait at intersection, bicycle, large truck, peds crossing crosswalk, ped with stroller"
+  },
+  {
+   "scene": "scene-0655",
+   "file": "scene-0655.mcap",
+   "sha256": "4c639a69c09ccbb7f8c5838744b367842d42086bcf6dd57838c72314e4507563",
+   "bytes": 2233116,
+   "duration_s": 19.831,
+   "messages": {
+    "/meta": 1,
+    "/calib/radar_front": 1,
+    "/ego/state": 396,
+    "/radar/front": 270,
+    "/gt/objects": 41
+   },
+   "vehicle": "n008",
+   "location": "boston-seaport",
+   "description": "Parking lot, parked cars, jaywalker, bendy bus, gardening vehicles"
+  },
+  {
+   "scene": "scene-0757",
+   "file": "scene-0757.mcap",
+   "sha256": "032c20e98294d6681989e54ad1fe7163db932fa985625a91a1955f8e4369aaee",
+   "bytes": 1854421,
+   "duration_s": 19.872,
+   "messages": {
+    "/meta": 1,
+    "/calib/radar_front": 1,
+    "/ego/state": 397,
+    "/radar/front": 271,
+    "/gt/objects": 41
+   },
+   "vehicle": "n008",
+   "location": "boston-seaport",
+   "description": "Arrive at busy intersection, bus, wait at intersection, bicycle, peds"
+  },
+  {
+   "scene": "scene-0796",
+   "file": "scene-0796.mcap",
+   "sha256": "497e15ce399186524ec17f7cce9ee02a350fe6df0387e5543af0089d64445307",
+   "bytes": 1919785,
+   "duration_s": 19.617,
+   "messages": {
+    "/meta": 1,
+    "/calib/radar_front": 1,
+    "/ego/state": 392,
+    "/radar/front": 259,
+    "/gt/objects": 40
+   },
+   "vehicle": "n015",
+   "location": "singapore-queenstown",
+   "description": "Scooter, peds on sidewalk, bus, cars, truck, fake construction worker, bicycle, cross intersection, car overtaking us"
+  },
+  {
+   "scene": "scene-0916",
+   "file": "scene-0916.mcap",
+   "sha256": "4108a582aab2e0dd1e7998468bc51cfab2bc67f046dbcfcce76a606a9350eeb6",
+   "bytes": 1889328,
+   "duration_s": 19.901,
+   "messages": {
+    "/meta": 1,
+    "/calib/radar_front": 1,
+    "/ego/state": 399,
+    "/radar/front": 265,
+    "/gt/objects": 41
+   },
+   "vehicle": "n015",
+   "location": "singapore-queenstown",
+   "description": "Parking lot, bicycle rack, parked bicycles, bus, many peds, parked scooters, parked motorcycle"
+  },
+  {
+   "scene": "scene-1077",
+   "file": "scene-1077.mcap",
+   "sha256": "67cd34af9993f5e4e6e0e1ce3d603c6360ceb56c451e2f571e77703930ab3ea5",
+   "bytes": 1999367,
+   "duration_s": 19.967,
+   "messages": {
+    "/meta": 1,
+    "/calib/radar_front": 1,
+    "/ego/state": 400,
+    "/radar/front": 266,
+    "/gt/objects": 41
+   },
+   "vehicle": "n015",
+   "location": "singapore-hollandvillage",
+   "description": "Night, big street, bus stop, high speed, construction vehicle"
+  },
+  {
+   "scene": "scene-1094",
+   "file": "scene-1094.mcap",
+   "sha256": "de9523cbed7f99f71920a4dbb64666da9a1b33244d18659d62b8bff2c60a464d",
+   "bytes": 1985326,
+   "duration_s": 19.512,
+   "messages": {
+    "/meta": 1,
+    "/calib/radar_front": 1,
+    "/ego/state": 391,
+    "/radar/front": 260,
+    "/gt/objects": 40
+   },
+   "vehicle": "n015",
+   "location": "singapore-hollandvillage",
+   "description": "Night, after rain, many peds, PMD, ped with bag, jaywalker, truck, scooter"
+  },
+  {
+   "scene": "scene-1100",
+   "file": "scene-1100.mcap",
+   "sha256": "d7cf7bfeb23f01127a18a491294224bcf90b66adfc0cdae895b92e6ea5aa8927",
+   "bytes": 1698295,
+   "duration_s": 19.501,
+   "messages": {
+    "/meta": 1,
+    "/calib/radar_front": 1,
+    "/ego/state": 391,
+    "/radar/front": 258,
+    "/gt/objects": 40
+   },
+   "vehicle": "n015",
+   "location": "singapore-hollandvillage",
+   "description": "Night, peds in sidewalk, peds cross crosswalk, scooter, PMD, difficult lighting"
+  }
+ ]
+}
