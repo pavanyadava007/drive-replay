@@ -1,0 +1,46 @@
+{
+ "scene": "scene-0655-braking-lead",
+ "stack_version": "0.2.0",
+ "commit": "397839da5376",
+ "reason": "new must-warn cases; reviewed: warning at TTC ~2.1 s, brake request at ~0.95 s, oracle justified",
+ "event_digest": "4cec04718d47c8e1",
+ "state_digest": "06c96e3f24d739ca",
+ "events": [
+  {
+   "t_us": 1535385102102011,
+   "t_s": 9.958,
+   "kind": "fcw_warning_on",
+   "track": 239,
+   "ttc": 2.036,
+   "range": 12.77,
+   "closing": 6.27
+  },
+  {
+   "t_us": 1535385103123426,
+   "t_s": 10.98,
+   "kind": "brake_request_on",
+   "track": 239,
+   "ttc": 0.994,
+   "range": 6.14,
+   "closing": 6.18
+  },
+  {
+   "t_us": 1535385104148851,
+   "t_s": 12.005,
+   "kind": "brake_request_off",
+   "track": 239,
+   "ttc": 0.0,
+   "range": 0.0,
+   "closing": 0.0
+  },
+  {
+   "t_us": 1535385104293837,
+   "t_s": 12.15,
+   "kind": "fcw_warning_off",
+   "track": 239,
+   "ttc": 0.0,
+   "range": 0.0,
+   "closing": 0.0
+  }
+ ]
+}

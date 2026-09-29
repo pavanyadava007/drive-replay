@@ -172,6 +172,55 @@
    "vehicle": "n015",
    "location": "singapore-hollandvillage",
    "description": "Night, peds in sidewalk, peds cross crosswalk, scooter, PMD, difficult lighting"
+  },
+  {
+   "scene": "scene-0796-stopped-car",
+   "file": "scene-0796-stopped-car.mcap",
+   "sha256": "b33c03d2046bebe7b98188b77335adbafb2a0bc825c99fc0489b1e5118585756",
+   "bytes": 1936245,
+   "duration_s": 19.616,
+   "vehicle": "n015",
+   "location": "singapore-queenstown",
+   "description": "Scooter, peds on sidewalk, bus, cars, truck, fake construction worker, bicycle, cross intersection, car overtaking us + injected stopped car",
+   "derived_from": "scene-0796",
+   "injected": {
+    "kind": "stopped_car",
+    "s_rear": 149.8342
+   }
+  },
+  {
+   "scene": "scene-1077-stopped-car",
+   "file": "scene-1077-stopped-car.mcap",
+   "sha256": "cb1603776b3a4ed5e1cd009bd4ab48ddbde4da3a10ff8615b47548755db90cd6",
+   "bytes": 2015089,
+   "duration_s": 19.95,
+   "vehicle": "n015",
+   "location": "singapore-hollandvillage",
+   "description": "Night, big street, bus stop, high speed, construction vehicle + injected stopped car",
+   "derived_from": "scene-1077",
+   "injected": {
+    "kind": "stopped_car",
+    "s_rear": 167.1759
+   }
+  },
+  {
+   "scene": "scene-0655-braking-lead",
+   "file": "scene-0655-braking-lead.mcap",
+   "sha256": "b56e1808be0fbed8903184f193a17a4148abfa2bae4e50a79a48de2e7db481fe",
+   "bytes": 2258183,
+   "duration_s": 19.806,
+   "vehicle": "n008",
+   "location": "boston-seaport",
+   "description": "Parking lot, parked cars, jaywalker, bendy bus, gardening vehicles + injected braking lead",
+   "derived_from": "scene-0655",
+   "injected": {
+    "kind": "braking_lead",
+    "t_start_s": 3.0,
+    "t_brake_s": 8.0,
+    "decel": 4.0,
+    "v0": 8.7501,
+    "s_rear0": 46.683
+   }
   }
  ]
 }

@@ -2,7 +2,10 @@
 name = "fcw-replay-regression"
 determinism_runs = 2
 recordings = ["scene-0061", "scene-0103", "scene-0553", "scene-0655", "scene-0757",
-              "scene-0796", "scene-0916", "scene-1077", "scene-1094", "scene-1100"]
+              "scene-0796", "scene-0916", "scene-1077", "scene-1094", "scene-1100",
+              # must-warn cases: a synthetic target injected on the recorded driven path (open loop),
+              # so that a stack which never warns cannot pass (tools/convert/inject_target.py)
+              "scene-0796-stopped-car", "scene-1077-stopped-car", "scene-0655-braking-lead"]
 
 # Ticketed known issues: the requirement check reports WAIVED instead of FAIL. Once the bug no longer
 # reproduces, the suite says so, and the waiver must be removed in the same change as the fix.

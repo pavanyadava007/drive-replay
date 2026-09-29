@@ -1,0 +1,46 @@
+{
+ "scene": "scene-0796-stopped-car",
+ "stack_version": "0.2.0",
+ "commit": "397839da5376",
+ "reason": "new must-warn cases; reviewed: warning at TTC ~2.1 s, brake request at ~0.95 s, oracle justified",
+ "event_digest": "efb252c7baed1656",
+ "state_digest": "c785a66f8e950dc9",
+ "events": [
+  {
+   "t_us": 1538448754274309,
+   "t_s": 9.843,
+   "kind": "fcw_warning_on",
+   "track": 797,
+   "ttc": 2.133,
+   "range": 25.54,
+   "closing": 11.98
+  },
+  {
+   "t_us": 1538448755409718,
+   "t_s": 10.979,
+   "kind": "brake_request_on",
+   "track": 797,
+   "ttc": 0.985,
+   "range": 11.88,
+   "closing": 12.06
+  },
+  {
+   "t_us": 1538448756475047,
+   "t_s": 12.044,
+   "kind": "brake_request_off",
+   "track": 797,
+   "ttc": 37.095,
+   "range": 64.96,
+   "closing": 1.75
+  },
+  {
+   "t_us": 1538448756625050,
+   "t_s": 12.194,
+   "kind": "fcw_warning_off",
+   "track": 797,
+   "ttc": 33.847,
+   "range": 64.66,
+   "closing": 1.91
+  }
+ ]
+}
