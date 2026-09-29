@@ -3,6 +3,7 @@ title = "FCW warns on oncoming cars on a curving road"
 recording = "scene-0103"
 window_s = [0.0, 3.0]
 reported_on = "0.1.0"
+fixed_in = "0.2.0"
 expect = { kind = "no_false_warning" }
 notes = """
 Found by the replay suite on the first drop. Two warnings (0.59 s and 1.98 s) with TTC about 2.0-2.1 s,

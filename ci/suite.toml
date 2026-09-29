@@ -6,10 +6,5 @@ recordings = ["scene-0061", "scene-0103", "scene-0553", "scene-0655", "scene-075
 
 # Ticketed known issues: the requirement check reports WAIVED instead of FAIL. Once the bug no longer
 # reproduces, the suite says so, and the waiver must be removed in the same change as the fix.
-[[known_issue]]
-scene = "scene-0103"
-bug = "BUG-0001"
-
-[[known_issue]]
-scene = "scene-0061"
-bug = "BUG-0002"
+# (BUG-0001 and BUG-0002 were waived on stack 0.1.0 and removed with their fix in 0.2.0.)
+known_issue = []

@@ -1,46 +1,9 @@
 {
  "scene": "scene-0103",
- "stack_version": "0.1.0",
- "commit": "45b71befcf41",
- "reason": "first baseline, stack 0.1.0; scene-0061 and scene-0103 carry known issues BUG-0002 and BUG-0001",
- "event_digest": "92f1e99b3986615f",
- "state_digest": "d0afd738e024f045",
- "events": [
-  {
-   "t_us": 1533151604140703,
-   "t_s": 0.593,
-   "kind": "fcw_warning_on",
-   "track": 84,
-   "ttc": 2.041,
-   "range": 32.65,
-   "closing": 16.0
-  },
-  {
-   "t_us": 1533151604945825,
-   "t_s": 1.398,
-   "kind": "fcw_warning_off",
-   "track": 84,
-   "ttc": 0.0,
-   "range": 0.0,
-   "closing": 0.0
-  },
-  {
-   "t_us": 1533151605526118,
-   "t_s": 1.979,
-   "kind": "fcw_warning_on",
-   "track": 99,
-   "ttc": 2.094,
-   "range": 35.33,
-   "closing": 16.87
-  },
-  {
-   "t_us": 1533151606256221,
-   "t_s": 2.709,
-   "kind": "fcw_warning_off",
-   "track": 262,
-   "ttc": 4.253,
-   "range": 59.47,
-   "closing": 13.98
-  }
- ]
+ "stack_version": "0.2.0",
+ "commit": "ace81022635b",
+ "reason": "BUG-0001 and BUG-0002 fixed (reviewed: the removed warnings are the false ones in the tickets)",
+ "event_digest": "14650fb0739d0383",
+ "state_digest": "7d35aadff45fcdd2",
+ "events": []
 }

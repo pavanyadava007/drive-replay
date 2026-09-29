@@ -3,6 +3,7 @@ title = "Curved corridor assumes a constant yaw rate and warns on parked cars at
 recording = "scene-0916"
 window_s = [8.5, 11.0]
 reported_on = "be3c4e4"
+fixed_in = "0.2.0"
 expect = { kind = "no_false_warning" }
 notes = """
 Found by the CI suite on release candidate be3c4e4 (the BUG-0001/0002 fix), in recordings the two bug
