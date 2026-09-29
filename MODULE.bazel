@@ -1,4 +1,4 @@
-module(name = "drive_replay", version = "0.1.0")
+module(name = "drive_replay", version = "0.2.0")
 
 bazel_dep(name = "rules_cc", version = "0.2.8")
 bazel_dep(name = "rules_python", version = "1.6.3")

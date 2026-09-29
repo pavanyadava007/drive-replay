@@ -1,12 +1,19 @@
 #include "stack/fcw.h"
 
+#include <algorithm>
+#include <string>
 #include <cmath>
 
 namespace dr {
 
-bool Fcw::in_path(const Track& t, const EgoState& /*ego*/) const {
-  // straight corridor ahead of the car
-  return std::fabs(t.s[1]) < p_.corridor_half_width_m;
+bool Fcw::in_path(const Track& t, const EgoState& ego) const {
+  // Corridor along the predicted path: a circular arc with curvature yaw_rate / speed (BUG-0002; the first
+  // version used a straight corridor and warned on objects the car was turning away from).
+  double k = ego.speed > 0.5 ? ego.yaw_rate / ego.speed : 0.0;
+  k = std::clamp(k, -p_.max_curvature, p_.max_curvature);
+  const double x = t.s[0];
+  const double y_path = 0.5 * k * x * x;  // small-angle arc, valid for |k x| << 1
+  return std::fabs(t.s[1] - y_path) < p_.corridor_half_width_m;
 }
 
 std::vector<FcwEvent> Fcw::step(int64_t t_us, std::vector<Track>& tracks, const EgoState& ego) {
@@ -17,6 +24,9 @@ std::vector<FcwEvent> Fcw::step(int64_t t_us, std::vector<Track>& tracks, const 
     const bool path = in_path(t, ego);
     t.in_path_cycles = path ? t.in_path_cycles + 1 : 0;
     if (!active || !t.confirmed || !path) continue;
+    // Oncoming traffic is outside the scope of a forward collision warning (BUG-0001).
+    const double over_ground_vx = t.s[2] + ego.speed;
+    if (over_ground_vx < -p_.oncoming_speed_mps) continue;
     const double range = t.s[0] - p_.front_bumper_m;
     const double closing = -t.s[2];
     if (range <= 0.0 || closing < p_.min_closing_mps) continue;
@@ -25,8 +35,10 @@ std::vector<FcwEvent> Fcw::step(int64_t t_us, std::vector<Track>& tracks, const 
   }
 
   auto emit = [&](const char* kind) {
-    events.push_back(FcwEvent{t_us, kind, threat_.track_id >= 0 ? threat_.track_id : warned_track_,
-                              threat_.track_id >= 0 ? threat_.ttc : 0.0, threat_.range, threat_.closing, ego.speed});
+    const bool off = std::string(kind).find("_off") != std::string::npos;
+    const int id = off ? warned_track_ : threat_.track_id;
+    events.push_back(FcwEvent{t_us, kind, id, threat_.track_id >= 0 ? threat_.ttc : 0.0, threat_.range, threat_.closing,
+                              ego.speed});
   };
 
   warn_count_ = threat_.ttc < p_.ttc_warn_s ? warn_count_ + 1 : 0;

@@ -59,6 +59,44 @@ TEST(Fcw, SilentBelowMinimumEgoSpeedOrOutsideCorridorOrUnconfirmed) {
   }
 }
 
+TEST(Fcw, Bug0001IgnoresOncomingTraffic) {
+  Params p;
+  Fcw f(p);
+  // ego 8.5 m/s, target closes at 16 m/s: it drives towards us at 7.5 m/s over ground
+  std::vector<Track> tr{target(1, p.front_bumper_m + 32.0, 0.4, -16.0)};
+  for (int k = 0; k < 5; ++k) EXPECT_TRUE(f.step(k, tr, ego(8.5)).empty());
+  // the same geometry with a stopped car (closing = ego speed) must still warn
+  Fcw g(p);
+  std::vector<Track> stopped{target(2, p.front_bumper_m + 15.0, 0.4, -8.5)};
+  g.step(0, stopped, ego(8.5));
+  EXPECT_EQ(g.step(1, stopped, ego(8.5)).size(), 1u);
+}
+
+TEST(Fcw, Bug0002CorridorFollowsTheTurn) {
+  Params p;
+  // turning left at 0.13 rad/s and 5.6 m/s: at x = 15 m the path is about 2.6 m to the left
+  std::vector<Track> right{target(1, 15.3, -0.86, -5.6)};
+  std::vector<Track> on_arc{target(2, 15.3, 2.7, -5.6)};
+  Fcw a(p), b(p);
+  for (int k = 0; k < 4; ++k) EXPECT_TRUE(a.step(k, right, ego(5.6, 0.131)).empty());
+  b.step(0, on_arc, ego(5.6, 0.131));
+  EXPECT_EQ(b.step(1, on_arc, ego(5.6, 0.131)).size(), 1u);
+}
+
+TEST(Fcw, OffEventNamesTheWarnedTrack) {
+  Params p;
+  Fcw f(p);
+  std::vector<Track> tr{target(7, p.front_bumper_m + 8.0, 0.0, -5.0)};
+  f.step(0, tr, ego(8));
+  f.step(1, tr, ego(8));
+  std::vector<Track> other{target(9, p.front_bumper_m + 40.0, 0.0, -5.0)};  // TTC 8 s, not a threat
+  std::vector<FcwEvent> ev;
+  for (int k = 0; k < p.release_cycles; ++k) ev = f.step(2 + k, other, ego(8));
+  ASSERT_EQ(ev.size(), 1u);
+  EXPECT_EQ(ev[0].kind, "fcw_warning_off");
+  EXPECT_EQ(ev[0].track_id, 7);
+}
+
 TEST(Fcw, PicksMostCriticalTarget) {
   Params p;
   Fcw f(p);

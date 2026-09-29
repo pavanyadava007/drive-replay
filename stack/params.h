@@ -24,6 +24,8 @@ struct Params {
   // forward collision warning
   double min_ego_speed_mps = 2.0;
   double corridor_half_width_m = 1.3;
+  double max_curvature = 0.2;         // 1/m, clamps yaw_rate / speed at low speed (BUG-0002)
+  double oncoming_speed_mps = 1.0;    // targets approaching faster than this over ground are oncoming (BUG-0001)
   double front_bumper_m = 3.7;  // rear axle to front bumper
   double min_closing_mps = 0.5;
   double ttc_warn_s = 2.2;
