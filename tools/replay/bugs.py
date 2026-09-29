@@ -69,12 +69,13 @@ def ensure_drop(version: str) -> drops.Drop:
     try:
         return drops.resolve(version)
     except ResolveError:
-        tag = version if version.startswith("v") else f"v{version}"
-        if subprocess.run(["git", "rev-parse", "--verify", "--quiet", tag], cwd=paths.ROOT,
-                          capture_output=True, check=False).returncode != 0:
-            raise
-        print(f"[bug] no drop for {version} yet, building tag {tag} ...", flush=True)
-        return drops.build(tag)
+        # a release version maps to its tag; anything else may be a commit
+        for ref in (version if version.startswith("v") else f"v{version}", version):
+            if subprocess.run(["git", "rev-parse", "--verify", "--quiet", f"{ref}^{{commit}}"], cwd=paths.ROOT,
+                              capture_output=True, check=False).returncode == 0:
+                print(f"[bug] no drop for {version} yet, building {ref} ...", flush=True)
+                return drops.build(ref)
+        raise
 
 
 def replay_bug(bug_id: str, fix_drop: str | None = None, preroll_s: float | None = None) -> dict:

@@ -1,0 +1,14 @@
+id = "BUG-0003"
+title = "Curved corridor assumes a constant yaw rate and warns on parked cars at the exit of a turn"
+recording = "scene-0916"
+window_s = [8.5, 11.0]
+reported_on = "be3c4e4"
+expect = { kind = "no_false_warning" }
+notes = """
+Found by the CI suite on release candidate be3c4e4 (the BUG-0001/0002 fix), in recordings the two bug
+tickets never touched: scene-0916 at 9.41 s and scene-1094 at 8.03 s. Both times the car is leaving a turn
+(yaw rate falling from about 0.4 rad/s to 0 within a second), but the arc corridor assumes it keeps turning,
+so parked cars on the outside of the bend fall inside it (scene-0916: car 7.9 m ahead, 3.2 m to the right,
+arc at -2.5 m; the car actually drove on to -0.9 m). The focused bug replays of the fix both passed; only
+the full suite caught it. Fix: predict the path with a yaw rate that decays to zero (time constant 1 s).
+"""

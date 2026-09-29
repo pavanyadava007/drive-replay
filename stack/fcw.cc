@@ -7,12 +7,16 @@
 namespace dr {
 
 bool Fcw::in_path(const Track& t, const EgoState& ego) const {
-  // Corridor along the predicted path: a circular arc with curvature yaw_rate / speed (BUG-0002; the first
-  // version used a straight corridor and warned on objects the car was turning away from).
-  double k = ego.speed > 0.5 ? ego.yaw_rate / ego.speed : 0.0;
-  k = std::clamp(k, -p_.max_curvature, p_.max_curvature);
-  const double x = t.s[0];
-  const double y_path = 0.5 * k * x * x;  // small-angle arc, valid for |k x| << 1
+  // Corridor along the predicted path (BUG-0002: the first version was straight and warned on objects the car
+  // was turning away from). The yaw rate is assumed to decay to zero with time constant tau (BUG-0003: a
+  // constant-curvature arc kept turning at the exit of a bend and swept parked cars into the corridor).
+  const double v = std::max(ego.speed, 0.5);
+  const double k = std::clamp(ego.yaw_rate / v, -p_.max_curvature, p_.max_curvature);
+  const double tau = p_.yaw_rate_decay_s;
+  const double tt = std::max(t.s[0], 0.0) / v;  // time to reach the target's longitudinal position
+  // heading(t) = k v tau (1 - e^{-t/tau}); lateral offset by small-angle integration at constant speed
+  const double y_path = tau > 0.0 ? k * v * v * tau * (tt - tau * (1.0 - std::exp(-tt / tau)))
+                                  : 0.5 * k * t.s[0] * t.s[0];
   return std::fabs(t.s[1] - y_path) < p_.corridor_half_width_m;
 }
 

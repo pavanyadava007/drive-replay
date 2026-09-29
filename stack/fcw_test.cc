@@ -74,13 +74,28 @@ TEST(Fcw, Bug0001IgnoresOncomingTraffic) {
 
 TEST(Fcw, Bug0002CorridorFollowsTheTurn) {
   Params p;
-  // turning left at 0.13 rad/s and 5.6 m/s: at x = 15 m the path is about 2.6 m to the left
+  // turning left at 0.13 rad/s and 5.6 m/s: with the yaw rate decaying (tau 1 s) the predicted path is
+  // about 1.3 m to the left at x = 15.3 m (a constant arc would say 2.7 m)
   std::vector<Track> right{target(1, 15.3, -0.86, -5.6)};
-  std::vector<Track> on_arc{target(2, 15.3, 2.7, -5.6)};
+  std::vector<Track> on_arc{target(2, 15.3, 1.3, -5.6)};
   Fcw a(p), b(p);
   for (int k = 0; k < 4; ++k) EXPECT_TRUE(a.step(k, right, ego(5.6, 0.131)).empty());
   b.step(0, on_arc, ego(5.6, 0.131));
   EXPECT_EQ(b.step(1, on_arc, ego(5.6, 0.131)).size(), 1u);
+}
+
+TEST(Fcw, Bug0003CorridorStraightensAtTheExitOfATurn) {
+  Params p;
+  // scene-0916 at 9.41 s: leaving a right turn at 4.44 m/s, yaw rate -0.361 rad/s; a parked car 7.9 m ahead,
+  // 3.2 m to the right. A constant-curvature arc puts the path at -2.5 m there; with decay it is at -1.5 m.
+  std::vector<Track> parked{target(1, 7.91, -3.22, -2.18)};
+  Fcw f(p);
+  for (int k = 0; k < 4; ++k) EXPECT_TRUE(f.step(k, parked, ego(4.44, -0.361)).empty());
+  Params arc = p;
+  arc.yaw_rate_decay_s = 0.0;  // the be3c4e4 behaviour
+  Fcw g(arc);
+  g.step(0, parked, ego(4.44, -0.361));
+  EXPECT_EQ(g.step(1, parked, ego(4.44, -0.361)).size(), 1u);
 }
 
 TEST(Fcw, OffEventNamesTheWarnedTrack) {
