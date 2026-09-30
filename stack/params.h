@@ -32,7 +32,7 @@ struct Params {
   double ttc_warn_s = 2.2;
   double ttc_release_s = 2.7;
   double ttc_brake_s = 1.0;
-  int warn_confirm_cycles = 2;
+  int warn_confirm_cycles = 4;  // was 2: debounce longer for less flicker
   int release_cycles = 3;
 };
 
