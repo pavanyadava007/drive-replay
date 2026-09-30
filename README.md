@@ -19,14 +19,14 @@ Demo: https://huggingface.co/spaces/pavanyadava07/drive-replay - Results: [docs/
 
 ## What the tooling found
 
-These are not staged. They came out of the suite while the stack was being written:
+The three bugs, the window-fidelity problem and the silent-stack problem came out of the suite while the stack was being written. The silent regression is a deliberate demo:
 
 | | found by | what happened |
 |---|---|---|
 | BUG-0001 | replay suite on v0.1.0 | warnings on oncoming cars on a bending road (scene-0103) |
 | BUG-0002 | replay suite on v0.1.0 | warning on a construction worker beside the path in a left turn (scene-0061) |
-| BUG-0003 | **CI on the fix for 0001/0002** | the new curved corridor kept "turning" at the exit of a bend and warned on parked cars in two recordings the tickets never touched (scene-0916, scene-1094). Both focused bug replays had passed. The CI blocked the release candidate. |
-| silent regression | CI on `demo/silent-regression` | a one-line "less flicker" tweak (debounce 2 -> 4 cycles). Unit tests pass, the oracle's requirements pass, and only the golden comparison shows every warning arriving 0.15 s later. |
+| BUG-0003 | **CI on the fix for 0001/0002** | the new curved corridor kept "turning" at the exit of a bend and warned on parked cars in two recordings the tickets never touched (scene-0916, scene-1094). Both focused bug replays had passed. The suite failed that release candidate (run locally with the same `replay ci` command CI uses). |
+| silent regression (demo) | CI on draft PR #1 | a one-line "less flicker" tweak (debounce 2 -> 4 cycles). The FCW unit tests were first changed to read the debounce from `Params`, as a developer making this change on purpose would do. Unit tests pass, the oracle's requirements pass, and only the golden comparison shows every warning arriving 0.15 s later. |
 | window fidelity | building `replay bug` | a bug window replayed without pre-roll still "reproduced", but 0.22 s later and with a different TTC, because the tracker starts cold. `replay bug` now compares the window against the whole-drive replay and says when they diverge. Measured: 0.25 s of pre-roll is enough in these cases, but **not monotonic**: 1.0 s diverged in one case where 0.5 s and 2 s did not. |
 | a stack that never warns | reviewing v0.2.0 | v0.2.0 passed every requirement with zero warnings, because the mini drives contain no real forward-collision threat. The suite now has 3 injected must-warn cases, so a silent stack fails. |
 
@@ -36,7 +36,7 @@ regressions listed above; the Ubuntu runner, with its own CPU and compiler, repr
 the development machine.
 
 Headline (AMD EPYC 7R13): the whole 13-recording suite, each replayed twice, takes about 1 s; one core replays
-at about 117x real time, 32 parallel jobs at about 1,600x; 130 repeated runs gave identical digests.
+at about 120x real time, 32 parallel jobs at about 1,650x; every recording gave the same digest in all 10 repeats.
 
 ## Quick start
 
