@@ -128,7 +128,7 @@ cars in Boston and Singapore): steering-wheel angle and wheel speeds at 100 Hz, 
   with a new `/vehicle/can` topic (a separate recording set, `recordings/catalog_can.json`), the option changes
   no warning, keeps BUG-0001/2/3 fixed and catches the three injected threats at the same time. That is no
   evidence of a safety benefit, only of no regression on this small suite.
-- **Reprocessing** (`tools/vdyn/pipeline.py`): all 979 scenes (5.3 h of driving) in 6.0 s on one worker and
+- **Reprocessing** (`tools/vdyn/pipeline.py`): all 979 scenes (5.3 h of driving) in about 6 s on one worker and
   0.8 s on 16, about 24,000x real time, with the same batch digest for every worker count and a repeat run.
 - **REST job service** (`tools/vdyn/service.py`, standard library only): `POST /jobs`, `GET /jobs/{id}`,
   `GET /healthz`, `GET /scenes`; pytest tests drive a real server through a small HTTP client.
