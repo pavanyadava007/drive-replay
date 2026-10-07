@@ -26,5 +26,13 @@ TEST(Params, RejectsUnknownKeys) {
   EXPECT_THROW(load_params(write_tmp(R"({"ttc_warn": 2.5})")), std::runtime_error);
 }
 
+TEST(Params, PathModelIsOptInAndNeedsAVehicleModel) {
+  EXPECT_EQ(Params{}.path_model, 0);
+  EXPECT_THROW(load_params(write_tmp(R"({"path_model": 1})")), std::runtime_error);
+  EXPECT_THROW(load_params(write_tmp(R"({"path_model": 2})")), std::runtime_error);
+  const Params p = load_params(write_tmp(R"({"path_model": 0, "vehicle_id": "n015"})"));
+  EXPECT_EQ(p.path_model, 0);
+}
+
 }  // namespace
 }  // namespace dr

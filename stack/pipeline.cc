@@ -1,6 +1,7 @@
 #include "stack/pipeline.h"
 
 #include <cstdio>
+#include <cstdlib>
 
 #include "stack/radar_frontend.h"
 
@@ -14,7 +15,10 @@ CycleResult Pipeline::on_radar(const RadarScan& scan) {
 
   const std::vector<Detection> dets = cluster(to_vehicle_frame(scan, ext_, p_), p_);
   tracker_.step(dets, dt, ego_.yaw_rate);
-  r.events = fcw_.step(scan.t_us, tracker_.mutable_tracks(), ego_);
+  EgoState ego = ego_;
+  ego.steer_valid = have_can_ && std::llabs(scan.t_us - can_.t_us) <= static_cast<int64_t>(p_.steer_max_age_s * 1e6);
+  ego.steer_sw = ego.steer_valid ? can_.steer_sw : 0.0;
+  r.events = fcw_.step(scan.t_us, tracker_.mutable_tracks(), ego);
   r.ran = true;
 
   // Fixed precision: the digest must not depend on printf rounding of the last bits.

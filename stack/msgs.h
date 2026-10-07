@@ -14,6 +14,17 @@ struct EgoState {
   double x = 0, y = 0, yaw = 0;  // global frame, only used for tracing
   double speed = 0;              // m/s, signed longitudinal
   double yaw_rate = 0;           // rad/s
+  // Steering-wheel angle from /vehicle/can (only in recordings that carry it). Never part of the trace or the
+  // digests, so recordings without the topic replay exactly as before.
+  double steer_sw = 0;           // rad, left positive
+  bool steer_valid = false;
+};
+
+// One /vehicle/can message (nuScenes CAN bus expansion): steering-wheel angle and rear wheel speed.
+struct VehicleCan {
+  int64_t t_us = 0;
+  double steer_sw = 0;      // rad, left positive
+  double wheel_rpm_rear = 0;  // mean rear wheel speed, rpm
 };
 
 // Sensor-to-vehicle mounting of the front radar, read from the recording's /calib topic.

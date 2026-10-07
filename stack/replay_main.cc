@@ -79,6 +79,7 @@ int main(int argc, char** argv) {
     dr::RecordingHandlers h;
     h.calib = [&](const dr::Extrinsic& e) { pipeline.on_calibration(e); };
     h.ego = [&](const dr::EgoState& e) { pipeline.on_ego(e); };
+    h.can = [&](const dr::VehicleCan& c) { pipeline.on_can(c); };
     h.radar = [&](const dr::RadarScan& s) {
       const auto t0 = std::chrono::steady_clock::now();
       const dr::CycleResult r = pipeline.on_radar(s);
@@ -98,18 +99,18 @@ int main(int argc, char** argv) {
     const dr::RecordingStats st = dr::replay_recording(recording, start_us, end_us, h);
     const double wall_s = std::chrono::duration<double>(std::chrono::steady_clock::now() - wall0).count();
 
-    char buf[1024];
+    char buf[1100];
     std::snprintf(buf, sizeof buf,
                   "{\n \"stack_version\": \"%s\",\n \"git_commit\": \"%s\",\n \"cycles\": %lld,\n \"idle_cycles\": %lld,\n"
                   " \"events\": %lld,\n \"event_digest\": \"%s\",\n \"state_digest\": \"%s\",\n"
                   " \"messages\": %lld,\n \"radar_msgs\": %lld,\n \"ego_msgs\": %lld,\n"
                   " \"first_us\": %lld,\n \"last_us\": %lld,\n \"start_us\": %lld,\n \"end_us\": %lld,\n"
-                  " \"timing\": {\"wall_s\": %.4f, \"cycle_ms_p50\": %.4f, \"cycle_ms_p99\": %.4f, \"cycle_ms_max\": %.4f}\n}\n",
+                  " \"single_track_cycles\": %ld,\n \"timing\": {\"wall_s\": %.4f, \"cycle_ms_p50\": %.4f, \"cycle_ms_p99\": %.4f, \"cycle_ms_max\": %.4f}\n}\n",
                   dr::kVersion, dr::kGitCommit, static_cast<long long>(cycles), static_cast<long long>(idle),
                   static_cast<long long>(n_events), ev_digest.hex().c_str(), state_digest.hex().c_str(),
                   static_cast<long long>(st.messages), static_cast<long long>(st.radar), static_cast<long long>(st.ego),
                   static_cast<long long>(st.first_us), static_cast<long long>(st.last_us), static_cast<long long>(start_us),
-                  static_cast<long long>(end_us), wall_s, pct(cycle_ms, 0.5), pct(cycle_ms, 0.99), pct(cycle_ms, 1.0));
+                  static_cast<long long>(end_us), pipeline.single_track_cycles(), wall_s, pct(cycle_ms, 0.5), pct(cycle_ms, 0.99), pct(cycle_ms, 1.0));
     std::ofstream(out + "/summary.json") << buf;
     std::cout << buf;
   } catch (const std::exception& e) {

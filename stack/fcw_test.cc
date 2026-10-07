@@ -120,5 +120,48 @@ TEST(Fcw, PicksMostCriticalTarget) {
   EXPECT_EQ(f.threat().track_id, 2);
 }
 
+// path_model 1 (opt-in): the corridor follows the steering angle through the single-track model.
+Params single_track_params() {
+  Params p;
+  p.path_model = 1;
+  p.vehicle.dynamic_steering = vdyn::SteeringMap{15.0, 0.0};
+  return p;  // VehicleParams defaults (Renault Zoe-like)
+}
+
+TEST(Fcw, SingleTrackCorridorFollowsTheSteeringAngle) {
+  // The car is about to turn left: steering already 1.5 rad at the wheel (0.1 rad at the road), yaw rate still 0.
+  // A target 12 m ahead and 2.4 m to the left lies on the turning path; the default corridor (yaw rate only)
+  // still points straight ahead.
+  EgoState e = ego(6.0, 0.0);
+  e.steer_sw = 1.5;
+  e.steer_valid = true;
+  auto run = [&](const Params& p) {
+    Fcw f(p);
+    std::vector<Track> tr{target(1, 12.0, 2.4, -5.0)};
+    for (int k = 0; k < p.warn_confirm_cycles; ++k) f.step(k, tr, e);
+    return f.warning();
+  };
+  Params off;
+  EXPECT_FALSE(run(off));
+  EXPECT_TRUE(run(single_track_params()));
+}
+
+TEST(Fcw, SingleTrackFallsBackToTheDefaultWithoutSteering) {
+  // No fresh steering angle: path_model 1 behaves exactly like the default corridor.
+  const Params on = single_track_params();
+  const Params off;
+  for (double y : {-2.0, -0.5, 0.0, 0.8, 1.5, 3.0}) {
+    Fcw a(on), b(off);
+    std::vector<Track> ta{target(1, 15.0, y, -6.0)}, tb = ta;
+    const EgoState e = ego(9.0, 0.12);  // steer_valid = false
+    for (int k = 0; k < 3; ++k) {
+      a.step(k, ta, e);
+      b.step(k, tb, e);
+    }
+    EXPECT_EQ(a.warning(), b.warning()) << "y " << y;
+    EXPECT_EQ(ta[0].in_path_cycles, tb[0].in_path_cycles) << "y " << y;
+  }
+}
+
 }  // namespace
 }  // namespace dr

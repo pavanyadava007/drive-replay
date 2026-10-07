@@ -25,9 +25,15 @@ Params load_params(const std::string& json_path) {
     DR_PARAM(min_ego_speed_mps) DR_PARAM(corridor_half_width_m) DR_PARAM(max_curvature) DR_PARAM(yaw_rate_decay_s) DR_PARAM(oncoming_speed_mps) DR_PARAM(front_bumper_m)
     DR_PARAM(min_closing_mps) DR_PARAM(ttc_warn_s) DR_PARAM(ttc_release_s) DR_PARAM(ttc_brake_s)
     DR_PARAM(warn_confirm_cycles) DR_PARAM(release_cycles)
+    DR_PARAM(path_model) DR_PARAM(path_horizon_s) DR_PARAM(path_steer_decay_s) DR_PARAM(steer_max_age_s) DR_PARAM(vehicle_model) DR_PARAM(vehicle_id)
     throw std::runtime_error("unknown config key: " + it.key());
   }
 #undef DR_PARAM
+  if (p.path_model != 0 && p.path_model != 1) throw std::runtime_error("path_model must be 0 or 1");
+  if (p.path_model == 1) {
+    if (p.vehicle_model.empty()) throw std::runtime_error("path_model 1 needs vehicle_model (configs/vdyn/<vehicle>.json)");
+    p.vehicle = vdyn::load_vehicle_config(p.vehicle_model).for_vehicle(p.vehicle_id);
+  }
   return p;
 }
 

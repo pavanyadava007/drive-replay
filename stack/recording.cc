@@ -72,6 +72,11 @@ RecordingStats replay_recording(const std::string& path, int64_t start_us, int64
       const auto j = nlohmann::json::parse(std::string_view(reinterpret_cast<const char*>(mv.message.data), mv.message.dataSize));
       stats.radar += 1;
       if (h.radar) h.radar(parse_radar(j));
+    } else if (topic == "/vehicle/can" && h.can) {
+      const auto j = nlohmann::json::parse(std::string_view(reinterpret_cast<const char*>(mv.message.data), mv.message.dataSize));
+      VehicleCan c;
+      c.t_us = j["t_us"]; c.steer_sw = j["steer_sw_rad"]; c.wheel_rpm_rear = j["wheel_rpm_rear"];
+      h.can(c);
     } else {
       stats.skipped += 1;
     }

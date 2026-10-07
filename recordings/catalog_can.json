@@ -1,0 +1,111 @@
+{
+ "source": "recordings/catalog.json + nuScenes CAN bus expansion (steeranglefeedback, zoe_veh_info)",
+ "licence": "CC BY-NC-SA 4.0",
+ "builder": "tools/vdyn/add_can_topic.py",
+ "recordings": [
+  {
+   "scene": "scene-0061",
+   "file": "scene-0061.mcap",
+   "base_scene": "scene-0061",
+   "can_messages": 1796,
+   "sha256": "113021a69c03fc9a4b5039454e6dec2fb626aa02f8f6af0e15c382303cfd957e",
+   "source_sha256": "63639827e136479091251334123352b3e7f3c518fcab407952adeecc388e60a6"
+  },
+  {
+   "scene": "scene-0103",
+   "file": "scene-0103.mcap",
+   "base_scene": "scene-0103",
+   "can_messages": 1896,
+   "sha256": "f047d2dba906a88778672610bc3d969ce0aaaae32211d911436af65b85d292c3",
+   "source_sha256": "796f03a34f2f432acddcd6df515e0d6fabd0ede85d4e51c9ec6cd058a5293654"
+  },
+  {
+   "scene": "scene-0553",
+   "file": "scene-0553.mcap",
+   "base_scene": "scene-0553",
+   "can_messages": 1957,
+   "sha256": "0fa245688f4fec19fd9e00e9ada8850e03e8ed6e80ed764bc36bdc61495e4608",
+   "source_sha256": "3ee85985dec9c705ea474221c13486f6ec6c8eb30b46d61860eaff670233f515"
+  },
+  {
+   "scene": "scene-0655",
+   "file": "scene-0655.mcap",
+   "base_scene": "scene-0655",
+   "can_messages": 1947,
+   "sha256": "0e9f54430ea39810e33f677ed38f372cd3e8ef06a9f6e16cdd31c0eedac590ae",
+   "source_sha256": "4c639a69c09ccbb7f8c5838744b367842d42086bcf6dd57838c72314e4507563"
+  },
+  {
+   "scene": "scene-0757",
+   "file": "scene-0757.mcap",
+   "base_scene": "scene-0757",
+   "can_messages": 1971,
+   "sha256": "263bf170305d3d077bbf067ddd9a49c444de762f2c86fca7a9fb6fe80d69d782",
+   "source_sha256": "032c20e98294d6681989e54ad1fe7163db932fa985625a91a1955f8e4369aaee"
+  },
+  {
+   "scene": "scene-0796",
+   "file": "scene-0796.mcap",
+   "base_scene": "scene-0796",
+   "can_messages": 1942,
+   "sha256": "175874b7ca048153117f6892f97111d63c5540b1a7d3416438da5746bc625860",
+   "source_sha256": "497e15ce399186524ec17f7cce9ee02a350fe6df0387e5543af0089d64445307"
+  },
+  {
+   "scene": "scene-0916",
+   "file": "scene-0916.mcap",
+   "base_scene": "scene-0916",
+   "can_messages": 1978,
+   "sha256": "808f71fd31d2a8d3ab9395cc8752e0b11a79742ddba6d460c96acc9fbf461777",
+   "source_sha256": "4108a582aab2e0dd1e7998468bc51cfab2bc67f046dbcfcce76a606a9350eeb6"
+  },
+  {
+   "scene": "scene-1077",
+   "file": "scene-1077.mcap",
+   "base_scene": "scene-1077",
+   "can_messages": 1960,
+   "sha256": "b748bc78d251b9c4ada643c74eacf5c48f43cbd3f2ebfafd0da71c797ad55a33",
+   "source_sha256": "67cd34af9993f5e4e6e0e1ce3d603c6360ceb56c451e2f571e77703930ab3ea5"
+  },
+  {
+   "scene": "scene-1094",
+   "file": "scene-1094.mcap",
+   "base_scene": "scene-1094",
+   "can_messages": 1924,
+   "sha256": "85b4679ed0c8a5c450ca4eefe6589c3fc41e8bb038575587b5581eeb1a02de24",
+   "source_sha256": "de9523cbed7f99f71920a4dbb64666da9a1b33244d18659d62b8bff2c60a464d"
+  },
+  {
+   "scene": "scene-1100",
+   "file": "scene-1100.mcap",
+   "base_scene": "scene-1100",
+   "can_messages": 1922,
+   "sha256": "c1e00b51f8d24ccb4e585e407916ba4afe6a73eb2fe1eca0cba2b5194f943f58",
+   "source_sha256": "d7cf7bfeb23f01127a18a491294224bcf90b66adfc0cdae895b92e6ea5aa8927"
+  },
+  {
+   "scene": "scene-0796-stopped-car",
+   "file": "scene-0796-stopped-car.mcap",
+   "base_scene": "scene-0796",
+   "can_messages": 1942,
+   "sha256": "78932b47831b989b6dc9981ae083dee56b935ebae26846e88432929b37a199c5",
+   "source_sha256": "b33c03d2046bebe7b98188b77335adbafb2a0bc825c99fc0489b1e5118585756"
+  },
+  {
+   "scene": "scene-1077-stopped-car",
+   "file": "scene-1077-stopped-car.mcap",
+   "base_scene": "scene-1077",
+   "can_messages": 1960,
+   "sha256": "f860f326d3e537c02678326af74133518e71edbd8d9977815648dae93eb3e40a",
+   "source_sha256": "cb1603776b3a4ed5e1cd009bd4ab48ddbde4da3a10ff8615b47548755db90cd6"
+  },
+  {
+   "scene": "scene-0655-braking-lead",
+   "file": "scene-0655-braking-lead.mcap",
+   "base_scene": "scene-0655",
+   "can_messages": 1947,
+   "sha256": "474a9d9611d0cd93f9d7474c6c719c94294516cd7b1940ea6f2f9e77cdadf795",
+   "source_sha256": "b56e1808be0fbed8903184f193a17a4148abfa2bae4e50a79a48de2e7db481fe"
+  }
+ ]
+}

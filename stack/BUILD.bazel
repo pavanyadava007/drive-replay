@@ -44,7 +44,10 @@ cc_library(
         "tracker.h",
     ],
     copts = COPTS,
-    deps = ["@nlohmann_json//:json"],
+    deps = [
+        "//stack/vdyn",
+        "@nlohmann_json//:json",
+    ],
 )
 
 cc_library(

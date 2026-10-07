@@ -18,10 +18,11 @@ struct RecordingHandlers {
   std::function<void(const Extrinsic&)> calib;
   std::function<void(const EgoState&)> ego;
   std::function<void(const RadarScan&)> radar;
+  std::function<void(const VehicleCan&)> can;  // /vehicle/can, present only in the CAN recording set
 };
 
 // Replays [start_us, end_us] (0 = open) of the recording through the handlers. Topics the stack does not
-// subscribe to (/meta, /gt/objects) are skipped, which is what keeps the ground truth out of the stack.
+// subscribe to (/meta, /gt/objects, and /vehicle/can without a handler) are skipped, which is what keeps the ground truth out of the stack.
 // Calibration is delivered even when it lies before start_us, as a vehicle would load it at boot.
 RecordingStats replay_recording(const std::string& path, int64_t start_us, int64_t end_us, const RecordingHandlers& h);
 

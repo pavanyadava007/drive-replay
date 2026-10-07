@@ -23,7 +23,9 @@ class Pipeline {
 
   void on_calibration(const Extrinsic& e) { ext_ = e; }
   void on_ego(const EgoState& e) { ego_ = e; have_ego_ = true; }
+  void on_can(const VehicleCan& c) { can_ = c; have_can_ = true; }
   CycleResult on_radar(const RadarScan& scan);
+  long single_track_cycles() const { return fcw_.single_track_cycles(); }
 
  private:
   Params p_;
@@ -32,6 +34,8 @@ class Pipeline {
   Extrinsic ext_;
   EgoState ego_;
   bool have_ego_ = false;
+  VehicleCan can_;
+  bool have_can_ = false;
   int64_t last_radar_us_ = -1;
 };
 

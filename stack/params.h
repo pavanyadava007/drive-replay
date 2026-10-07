@@ -3,6 +3,8 @@
 
 #include <string>
 
+#include "stack/vdyn/vdyn.h"
+
 namespace dr {
 
 struct Params {
@@ -34,6 +36,17 @@ struct Params {
   double ttc_brake_s = 1.0;
   int warn_confirm_cycles = 2;
   int release_cycles = 3;
+  // path prediction model of the corridor: 0 = yaw rate decaying with yaw_rate_decay_s (default, stack 0.2.0),
+  // 1 = identified linear single-track model driven by the steering angle (opt-in, needs /vehicle/can and
+  // vehicle_model; falls back to 0 on cycles without a fresh steering angle)
+  int path_model = 0;
+  double path_horizon_s = 4.0;
+  double path_steer_decay_s = 1.0;  // path_model 1: steering angle decays with this time constant (0 = held);
+                                    // chosen on the validation scenes, see docs/VEHICLE_DYNAMICS.md
+  double steer_max_age_s = 0.1;
+  std::string vehicle_model;     // path to configs/vdyn/<vehicle>.json, relative to the working directory
+  std::string vehicle_id;        // car whose steering offset applies (nuScenes log vehicle, e.g. n015)
+  vdyn::VehicleConfig vehicle;   // loaded from vehicle_model, not a config key itself
 };
 
 // Throws std::runtime_error on unknown keys, so a typo in a config never runs silently.
