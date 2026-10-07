@@ -2,7 +2,8 @@
 
   python scripts/reproduce.py            (needs the recordings in data/recordings and bazel on PATH)
 
-Never edit docs/RESULTS.md by hand.
+Never edit docs/RESULTS.md by hand. The vehicle-dynamics results (docs/VEHICLE_DYNAMICS.md, site/data/vdyn.json)
+come from scripts/reproduce_vdyn.py, which needs the nuScenes CAN bus data (see the README).
 """
 from __future__ import annotations
 

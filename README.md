@@ -41,7 +41,7 @@ at about 120x real time, 32 parallel jobs at about 1,650x; every recording gave 
 ## Quick start
 
 ```bash
-bazel test //...                                     # 5 C++ GoogleTest targets + 4 Python pytest targets
+bazel test //...                                     # 7 C++ GoogleTest targets + 6 Python pytest targets
 pip install -r tools/convert/requirements.txt
 scripts/make_recordings.sh /path/to/nuscenes         # v1.0-mini; checks every file against the catalogue
 ./replay drop build v0.2.0                           # stamped, optimised build of a tag in a git worktree
@@ -101,6 +101,54 @@ replay run / bug / ci  = plan (resolve) -> execute -> judge -> manifest / report
   version that produced them. Known issues can be waived per recording with a ticket; the suite reports when
   a waived bug stops reproducing, so the waiver goes away with the fix.
 
+## Vehicle dynamics and reprocessing (v0.3.0)
+
+Data: the public nuScenes CAN bus expansion (`can_bus.zip`, 979 scenes with valid CAN data, two Renault Zoe
+cars in Boston and Singapore): steering-wheel angle and wheel speeds at 100 Hz, IMU yaw rate at 100 Hz, pose at
+50 Hz. A fixed, seeded split keeps whole logs together: 604 train, 183 validation, 192 test scenes.
+
+- **Models** (`stack/vdyn`, C++17, GoogleTest): kinematic single track, linear dynamic single track with axle
+  cornering stiffnesses and understeer gradient, constant yaw rate, constant velocity, and the FCW's own
+  yaw-rate-decay assumption; fixed-step RK4 with stiffness-aware substeps. Unit tests check physics properties:
+  straight line at zero steer, mirror symmetry, steady-state yaw rate v delta / (L (1 + K v^2)), convergence to
+  kinematic at low speed, no NaN at standstill, RK4 against the exact circle.
+- **Identification** (`tools/vdyn/identify.py`, train split only): wheel radius, steering ratio, a steering
+  offset per car, understeer gradient K (2.83 deg/g) by least squares; rear cornering stiffness by grid search
+  through the C++ model. Wheelbase 2.588 m from the public spec; mass, CG and yaw inertia are stated assumptions.
+  Parameters go to `configs/vdyn/renault_zoe.json`, which the C++ code reads.
+- **Validation** (192 test scenes, 95 % bootstrap CIs over scenes): yaw rate predicted from steering and wheel
+  speed has an RMSE of 0.357 deg/s with the dynamic model against 0.458 deg/s kinematic (-22 %, lower in 173 of
+  183 scenes). In open-loop trajectory prediction with inputs held, the dynamic model is only slightly better
+  than kinematic (lateral error at 3 s 0.56 m vs 0.58 m, -3 %), and the 3 s displacement error (about 2.2 m) is
+  dominated by the constant-speed assumption, not by the path model.
+- **FCW integration** (opt-in `path_model = 1`, default OFF, goldens unchanged): the corridor comes from the
+  identified single-track model and the steering angle. Holding the steering angle made the corridor much worse
+  at 20-30 m than the existing decay assumption; letting it decay with the same 1 s time constant (chosen on the
+  validation split) is 3.8-3.9 % more accurate at 10-30 m on the test split. Replayed on the 13 suite recordings
+  with a new `/vehicle/can` topic (a separate recording set, `recordings/catalog_can.json`), the option changes
+  no warning, keeps BUG-0001/2/3 fixed and catches the three injected threats at the same time. That is no
+  evidence of a safety benefit, only of no regression on this small suite.
+- **Reprocessing** (`tools/vdyn/pipeline.py`): all 979 scenes (5.3 h of driving) in 6.0 s on one worker and
+  0.8 s on 16, about 24,000x real time, with the same batch digest for every worker count and a repeat run.
+- **REST job service** (`tools/vdyn/service.py`, standard library only): `POST /jobs`, `GET /jobs/{id}`,
+  `GET /healthz`, `GET /scenes`; pytest tests drive a real server through a small HTTP client.
+  `Dockerfile.vdyn` builds a cloud-ready container; it was built and run locally only, never deployed.
+- **GNU Octave cross-check**: an Octave script solves the model's steady state independently and agrees with
+  the C++ simulation to about 3e-13 (relative). Octave only; no MATLAB or Simulink.
+
+```bash
+python tools/vdyn/can_extract.py --can-zip can_bus.zip --meta meta --out ~/workspace/drive-replay-data/can_scenes
+python tools/vdyn/identify.py --scenes ~/workspace/drive-replay-data/can_scenes
+python scripts/reproduce_vdyn.py                     # regenerates docs/VEHICLE_DYNAMICS.md and its figures
+bazel run //tools/vdyn:service -- --port 8080        # or: docker build -f Dockerfile.vdyn -t drive-replay-vdyn .
+curl -X POST localhost:8080/jobs -d '{"split": "test", "model": "dynamic"}'
+```
+
+Limits: one car type (Renault Zoe) at urban speeds (Boston, Singapore; very few samples above 12 m/s), linear
+tyres (no saturation, no combined slip, no load transfer), open loop (held inputs, no driver model), CG and yaw
+inertia not identifiable from these data, CAN reception timestamps for the wheel speeds, and the IMU and pose
+as reference rather than survey-grade ground truth. All numbers: [docs/VEHICLE_DYNAMICS.md](docs/VEHICLE_DYNAMICS.md).
+
 ## Limits, stated plainly
 
 - The stack is a compact radar FCW written for this project, not a production ADAS stack. It runs on x86
@@ -116,5 +164,9 @@ replay run / bug / ci  = plan (resolve) -> execute -> judge -> manifest / report
 ## Data and licence
 
 Code: MIT. Recordings are derived from nuScenes (https://www.nuscenes.org, CC BY-NC-SA 4.0) and are not in
-this repository; CI and `scripts/make_recordings.sh` rebuild them from the public v1.0-mini archive. The demo
-Space shows derived numbers only (speeds, TTC curves, events), with attribution.
+this repository; CI and `scripts/make_recordings.sh` rebuild them from the public v1.0-mini archive. The nuScenes
+CAN bus expansion (`can_bus.zip`, https://motional-nuscenes.s3.amazonaws.com/public/v1.0/can_bus.zip, no login)
+is under the same CC BY-NC-SA 4.0 licence plus Motional's terms of use (its LICENSE file); it is not in the
+repository either, and neither is anything derived from it except aggregate numbers, figures, the identified
+parameters, the scene names of the split and the sha256 catalogue of the CAN recording set. The demo Space shows
+derived numbers only (speeds, TTC curves, events, model errors), with attribution.

@@ -53,6 +53,7 @@ pre { font-family: var(--mono); font-size: 12.5px; background: var(--panel); bor
 .bug { margin-bottom: 14px; }
 .bug h3 { font-size: 15px; margin: 0 0 6px; }
 .note { color: var(--muted); font-size: 13px; }
+.fig { max-width: 100%; height: auto; background: #fcfcfb; border-radius: 6px; padding: 6px; box-sizing: border-box; }
 .theme { float: right; font-size: 13px; background: none; border: 1px solid var(--line); color: var(--muted); border-radius: 6px; padding: 3px 8px; cursor: pointer; }
 </style>
 </head>
@@ -97,6 +98,13 @@ pre { font-family: var(--mono); font-size: 12.5px; background: var(--panel); bor
   <div class="panel scroll"><table id="tp"></table></div>
   <p class="note" id="host"></p>
 
+  <h2>Vehicle dynamics (v0.3.0)</h2>
+  <p class="note">Kinematic and linear dynamic single-track models (C++17, RK4) with parameters identified from the
+  nuScenes CAN bus data (steering, wheel speeds, IMU) of the training drives, evaluated on held-out test drives.
+  95 % bootstrap intervals over scenes. Full write-up:
+  <a href="https://github.com/pavanyadava007/drive-replay/blob/main/docs/VEHICLE_DYNAMICS.md">docs/VEHICLE_DYNAMICS.md</a>.</p>
+  <div id="vdyn"><p class="note">Vehicle-dynamics data not available.</p></div>
+
   <h2>The run command</h2>
 <pre>$ ./replay run 61 --drop v0.1.0
 recording : scene-0061  (data/recordings/scene-0061.mcap, sha256 63639827e136, vehicle n015)
@@ -109,9 +117,10 @@ window    : whole recording
   oracle: warning at 6.81 s is FALSE (nothing in the driven path)
 requirements met: NO (1 false, 0 missed, 0 not radar-observable)</pre>
 
-  <p class="note">Data: nuScenes v1.0-mini (CC BY-NC-SA 4.0, nuscenes.org). This page shows derived numbers only.
+  <p class="note">Data: nuScenes v1.0-mini and the nuScenes CAN bus expansion (CC BY-NC-SA 4.0, nuscenes.org). This page shows derived numbers only.
   Timings are x86 replay timings, not an in-car target. Code: MIT.</p>
 </main>
 <script src="app.js"></script>
+<script src="vdyn.js"></script>
 </body>
 </html>
