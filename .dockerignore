@@ -1,0 +1,9 @@
+# Only what Dockerfile.vdyn copies
+*
+!stack/vdyn/*.h
+!stack/vdyn/*.cc
+!tools/__init__.py
+!tools/vdyn/__init__.py
+!tools/vdyn/pipeline.py
+!tools/vdyn/service.py
+!configs/vdyn/

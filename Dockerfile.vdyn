@@ -1,0 +1,30 @@
+# Container for the vehicle-dynamics reprocessing service (tools/vdyn/service.py + the C++ vdyn_eval).
+# Cloud-ready, built and run locally only.
+#
+#   docker build -f Dockerfile.vdyn -t drive-replay-vdyn .
+#   docker run --rm -p 8080:8080 -v ~/workspace/drive-replay-data/can_scenes:/data/can_scenes:ro drive-replay-vdyn
+#
+# The scene tables (nuScenes CAN bus expansion, CC BY-NC-SA 4.0) are mounted, never baked into the image.
+# CI builds vdyn_eval with Bazel; this image compiles the same sources with g++ to stay small.
+
+FROM debian:12.7-slim AS build
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends g++=4:12.2.0-3 nlohmann-json3-dev=3.11.2-2 \
+    && rm -rf /var/lib/apt/lists/*
+WORKDIR /src
+COPY stack/vdyn/vdyn.h stack/vdyn/vdyn.cc stack/vdyn/evaluate.h stack/vdyn/evaluate.cc stack/vdyn/vdyn_eval_main.cc stack/vdyn/
+RUN g++ -std=c++17 -O2 -Wall -Wextra -Werror -I. -static-libstdc++ -static-libgcc \
+        stack/vdyn/vdyn.cc stack/vdyn/evaluate.cc stack/vdyn/vdyn_eval_main.cc -o /vdyn_eval
+
+FROM python:3.11.10-slim-bookworm
+RUN pip install --no-cache-dir numpy==2.4.6 && useradd --create-home --uid 10001 vdyn
+WORKDIR /app
+COPY --from=build /vdyn_eval /app/bin/vdyn_eval
+COPY tools/__init__.py tools/
+COPY tools/vdyn/__init__.py tools/vdyn/pipeline.py tools/vdyn/service.py tools/vdyn/
+COPY configs/vdyn/ configs/vdyn/
+ENV VDYN_EVAL=/app/bin/vdyn_eval VDYN_SCENES=/data/can_scenes PYTHONDONTWRITEBYTECODE=1
+USER vdyn
+EXPOSE 8080
+HEALTHCHECK --interval=30s --timeout=3s CMD python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/healthz', timeout=2)"
+CMD ["python", "-m", "tools.vdyn.service", "--host", "0.0.0.0", "--port", "8080"]

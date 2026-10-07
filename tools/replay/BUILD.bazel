@@ -40,3 +40,4 @@ py_binary(
     "test_config",
     "test_mcaplite",
 ]]
+exports_files(["tests/pytest_main.py"])

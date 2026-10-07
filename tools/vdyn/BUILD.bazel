@@ -1,0 +1,51 @@
+load("@pypi//:requirements.bzl", "requirement")
+load("@rules_python//python:defs.bzl", "py_binary", "py_library", "py_test")
+
+# Vehicle-dynamics reprocessing: batch pipeline over vdyn_eval, statistics, REST job service.
+# (can_extract.py, identify.py and add_can_topic.py are offline data tools run from the venv.)
+py_library(
+    name = "vdyn_lib",
+    srcs = [
+        "__init__.py",
+        "pipeline.py",
+        "service.py",
+        "//tools:__init__.py",
+    ],
+    data = [
+        "//configs",
+        "//stack/vdyn:vdyn_eval",
+    ],
+    imports = ["../.."],
+    visibility = ["//visibility:public"],
+    deps = [requirement("numpy")],
+)
+
+# bazel run //tools/vdyn:service -- --port 8080
+py_binary(
+    name = "service",
+    srcs = ["service.py"],
+    main = "service.py",
+    deps = [":vdyn_lib"],
+)
+
+[py_test(
+    name = t,
+    size = "small",
+    srcs = [
+        "tests/__init__.py",
+        "tests/conftest.py",
+        "tests/" + t + ".py",
+        "//tools/replay:tests/pytest_main.py",
+    ],
+    args = ["$(location tests/" + t + ".py)"],
+    data = ["//stack/vdyn:vdyn_eval"],
+    main = "//tools/replay:tests/pytest_main.py",
+    deps = [
+        ":vdyn_lib",
+        requirement("numpy"),
+        requirement("pytest"),
+    ],
+) for t in [
+    "test_pipeline",
+    "test_service",
+]]

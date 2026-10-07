@@ -1,6 +1,7 @@
-# Python test dependencies for Bazel (pip.parse). The replay tooling itself uses only the standard library.
+# Python dependencies for Bazel (pip.parse). The replay tooling uses only the standard library; tools/vdyn needs numpy.
 iniconfig==2.3.0
 packaging==26.3
 pluggy==1.6.0
 pytest==9.1.1
 pygments==2.21.0
+numpy==2.4.6
