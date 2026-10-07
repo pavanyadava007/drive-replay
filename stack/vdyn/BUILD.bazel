@@ -1,0 +1,69 @@
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_test")
+
+package(default_visibility = ["//visibility:public"])
+
+COPTS = ["-Wall", "-Wextra", "-Werror"]
+
+# Vehicle dynamics models (kinematic and linear dynamic single track, baselines), RK4 integration, the
+# identified-parameter loader and the FCW corridor centre-line functions.
+cc_library(
+    name = "vdyn",
+    srcs = ["vdyn.cc"],
+    hdrs = ["vdyn.h"],
+    copts = COPTS,
+    deps = ["@nlohmann_json//:json"],
+)
+
+# Validation and reprocessing tool: one or more scene tables (tools/vdyn/can_extract.py) in, metrics JSON out.
+cc_library(
+    name = "evaluate",
+    srcs = ["evaluate.cc"],
+    hdrs = ["evaluate.h"],
+    copts = COPTS,
+    deps = [
+        ":vdyn",
+        "@nlohmann_json//:json",
+    ],
+)
+
+cc_binary(
+    name = "vdyn_eval",
+    srcs = ["vdyn_eval_main.cc"],
+    copts = COPTS,
+    deps = [
+        ":evaluate",
+        ":vdyn",
+    ],
+)
+
+cc_test(
+    name = "vdyn_test",
+    size = "small",
+    srcs = ["vdyn_test.cc"],
+    copts = COPTS,
+    data = ["//configs:vdyn_config"],
+    deps = [
+        ":vdyn",
+        "@googletest//:gtest_main",
+    ],
+)
+
+cc_test(
+    name = "evaluate_test",
+    size = "small",
+    srcs = ["evaluate_test.cc"],
+    copts = COPTS,
+    deps = [
+        ":evaluate",
+        ":vdyn",
+        "@googletest//:gtest_main",
+    ],
+)
+
+# Steady-state table for the GNU Octave cross-check (tools/vdyn/octave/steady_state.m).
+cc_binary(
+    name = "vdyn_steady",
+    srcs = ["vdyn_steady_main.cc"],
+    copts = COPTS,
+    deps = [":vdyn"],
+)

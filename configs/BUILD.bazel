@@ -3,3 +3,9 @@ filegroup(
     srcs = glob(["**/*.json"]),
     visibility = ["//visibility:public"],
 )
+
+filegroup(
+    name = "vdyn_config",
+    srcs = ["vdyn/renault_zoe.json"],
+    visibility = ["//visibility:public"],
+)
