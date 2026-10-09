@@ -8,6 +8,7 @@ py_library(
     srcs = [
         "__init__.py",
         "data.py",
+        "demo_export.py",
         "experiment.py",
         "learn.py",
         "metrics.py",
@@ -39,6 +40,7 @@ py_library(
     ],
 ) for t in [
     "test_causality",
+    "test_demo_export",
     "test_metrics_learn",
     "test_models",
     "test_parity",
