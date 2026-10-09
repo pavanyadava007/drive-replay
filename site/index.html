@@ -54,6 +54,11 @@ pre { font-family: var(--mono); font-size: 12.5px; background: var(--panel); bor
 .bug h3 { font-size: 15px; margin: 0 0 6px; }
 .note { color: var(--muted); font-size: 13px; }
 .fig { max-width: 100%; height: auto; background: #fcfcfb; border-radius: 6px; padding: 6px; box-sizing: border-box; }
+.banner { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; background: var(--panel); border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 10px; padding: 12px 14px; margin: 14px 0 4px; }
+.banner p { margin: 0; flex: 1 1 320px; color: var(--muted); font-size: 14px; }
+.cta { display: inline-block; font-weight: 600; text-decoration: none; background: var(--accent); color: #ffffff; padding: 8px 14px; border-radius: 7px; }
+:root[data-theme="dark"] .cta { color: #111317; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .cta { color: #111317; } }
 .theme { float: right; font-size: 13px; background: none; border: 1px solid var(--line); color: var(--muted); border-radius: 6px; padding: 3px 8px; cursor: pointer; }
 </style>
 </head>
@@ -67,6 +72,12 @@ pre { font-family: var(--mono); font-size: 12.5px; background: var(--panel); bor
   Recordings: 10 real nuScenes drives (front radar) plus 3 must-warn cases with an injected target.</p>
   <p class="links"><a href="https://github.com/pavanyadava007/drive-replay">Code on GitHub</a>
   <a href="https://github.com/pavanyadava007/drive-replay/blob/main/docs/RESULTS.md">docs/RESULTS.md</a></p>
+  <div class="banner">
+    <a class="cta" href="hud.html">Interactive AR-HUD demo</a>
+    <p>New in v0.4.1: replay a recorded drive and watch where a navigation arrow lands with no latency compensation, CTRV,
+    an EKF and EKF + learned residuals, with the real fitted predictors of the v0.4.0 benchmark.
+    <a href="media/drive-replay-hud-demo.mp4">Video (78 s)</a> · <a href="media/drive-replay-hud-demo-4x5.mp4">4:5 version</a></p>
+  </div>
   <div class="cards" id="cards"></div>
 
   <h2>CI verdict per build drop</h2>
@@ -111,7 +122,8 @@ pre { font-family: var(--mono); font-size: 12.5px; background: var(--panel); bor
   linear Kalman filters, an EKF on the CTRA state, ridge regression, a small MLP and two hybrids of EKF + learned
   residual) are tuned on validation drives and compared on held-out test drives of the nuScenes CAN bus data; the
   physics models, the EKF and the learned models also run in C++17. Full write-up:
-  <a href="https://github.com/pavanyadava007/drive-replay/blob/main/docs/MOTION_PREDICTION.md">docs/MOTION_PREDICTION.md</a>.</p>
+  <a href="https://github.com/pavanyadava007/drive-replay/blob/main/docs/MOTION_PREDICTION.md">docs/MOTION_PREDICTION.md</a>.
+  <b><a href="hud.html">Open the interactive AR-HUD demo</a></b> (10 test scenes, simulated driver view, all errors from the benchmark code).</p>
   <div id="mpred"><p class="note">Motion-prediction data not available.</p></div>
 
   <h2>The run command</h2>
@@ -126,7 +138,7 @@ window    : whole recording
   oracle: warning at 6.81 s is FALSE (nothing in the driven path)
 requirements met: NO (1 false, 0 missed, 0 not radar-observable)</pre>
 
-  <p class="note">Data: nuScenes v1.0-mini and the nuScenes CAN bus expansion (CC BY-NC-SA 4.0, nuscenes.org). This page shows derived numbers only.
+  <p class="note">Data: nuScenes v1.0-mini and the nuScenes CAN bus expansion (CC BY-NC-SA 4.0, nuscenes.org). This page shows derived numbers only; the AR-HUD demo also contains derived pose tracks of 10 test scenes (same licence).
   Timings are x86 replay timings, not an in-car target. Code: MIT.</p>
 </main>
 <script src="app.js"></script>
