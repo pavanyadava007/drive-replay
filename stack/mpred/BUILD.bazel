@@ -1,0 +1,63 @@
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_test")
+
+package(default_visibility = ["//visibility:public"])
+
+COPTS = ["-Wall", "-Wextra", "-Werror"]
+
+# Ego motion prediction for AR-HUD latency compensation: CTRA kernel (CV, CTRV, CTRA), EKF on the CTRA state,
+# ridge / MLP predictors on history features (direct or as a residual on the EKF forecast).
+cc_library(
+    name = "mpred",
+    srcs = ["mpred.cc"],
+    hdrs = ["mpred.h"],
+    copts = COPTS,
+    deps = ["@nlohmann_json//:json"],
+)
+
+# Scene tables of tools/mpred/extract.py -> samples (with the identified vehicle parameters of stack/vdyn).
+cc_library(
+    name = "scene",
+    srcs = ["scene.cc"],
+    hdrs = ["scene.h"],
+    copts = COPTS,
+    deps = [
+        ":mpred",
+        "//stack/vdyn",
+    ],
+)
+
+cc_test(
+    name = "mpred_test",
+    size = "small",
+    srcs = ["mpred_test.cc"],
+    copts = COPTS,
+    deps = [
+        ":mpred",
+        "@googletest//:gtest_main",
+    ],
+)
+
+# Python vs C++ parity: streams scenes through every C++ predictor and writes all predictions.
+cc_binary(
+    name = "mpred_eval",
+    srcs = ["mpred_eval_main.cc"],
+    copts = COPTS,
+    deps = [
+        ":mpred",
+        ":scene",
+        "//stack/vdyn",
+    ],
+)
+
+# Latency per prediction (p50 / p99) on recorded scenes, single thread.
+cc_binary(
+    name = "mpred_bench",
+    srcs = ["mpred_bench_main.cc"],
+    copts = COPTS,
+    deps = [
+        ":mpred",
+        ":scene",
+        "//stack/vdyn",
+        "@nlohmann_json//:json",
+    ],
+)
