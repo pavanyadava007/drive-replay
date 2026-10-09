@@ -149,6 +149,39 @@ tyres (no saturation, no combined slip, no load transfer), open loop (held input
 inertia not identifiable from these data, CAN reception timestamps for the wheel speeds, and the IMU and pose
 as reference rather than survey-grade ground truth. All numbers: [docs/VEHICLE_DYNAMICS.md](docs/VEHICLE_DYNAMICS.md).
 
+## Ego motion prediction for AR-HUD latency compensation (v0.4.0)
+
+A head-up display draws contact-analog overlays for where the car will be when the frame is lit, 50-500 ms after
+the newest sensor sample. `tools/mpred` (Python prototypes) and `stack/mpred` (C++17) compare 12 predictors on the
+same CAN data and split as v0.3.0: CV, CTRV, CTRA, kinematic and dynamic single track, linear KF-CV/KF-CA, an EKF on
+the CTRA state (pose + wheel speed + IMU yaw rate + acceleration), ridge regression, a small numpy MLP and two hybrids
+(EKF forecast + learned residual). Inputs are causal (a second table set with sample-and-hold CAN signals; a test
+checks that no prediction reads a later sample). Besides position and heading, the HUD metric is the overlay offset
+`lateral error + D sin(heading error)`, reported at D = 20 m.
+
+- **Accuracy** (test: 192 scenes, 1.04 h, 27,715 start points; 95 % bootstrap CIs over scenes): EKF + MLP residual is
+  best on position, heading and 20 m overlay offset at 100, 200 and 500 ms. At 200 ms: overlay offset 1.64 cm
+  [1.58, 1.70] vs 2.78 cm for CTRV (-41 %, better in 180/182 scenes) and 19.7 cm for CV; heading 0.041 deg vs 0.070.
+  The tuned EKF beats CTRV on position by 28-33 % but not on heading (it passes the IMU yaw rate through); the learned
+  residual adds the heading gain. In turn-in/turn-out the 200 ms offset drops by 75 % vs CTRV.
+- **Robustness**: with injected sensor noise the picture flips. At level 1 (5 cm pose, 0.1 m/s, 0.29 deg/s, ...) the
+  20 m offset at 200 ms is 3.5 cm for EKF + ridge, 4.5 cm EKF, 6.3 cm EKF + MLP, 7.4 cm CTRV and 24 cm for the plain
+  MLP, which was trained on clean data and is the most noise-sensitive model. With the pose 100 ms late and
+  odometry 20 ms late, re-propagating the EKF with the odometry that already arrived cuts the 20 m offset by 26 %.
+- **Effort and runtime**: EKF 12 noise values (6 tuned on 324 validation runs, 194 s), hybrid MLP 8,348 weights
+  (train 14 s). C++ on one core of an x86 host (not an ECU): EKF step 0.77 us p50, CTRA/EKF forecast 5.0 us p50 /
+  7.1-7.2 us p99 (100 RK4 steps), EKF + MLP 11.7 / 15.1 us; one frame (EKF step + EKF + MLP) is 16.1 us at p99, 1.6 % of a
+  1 ms budget. Python vs C++ on all test predictions: max position difference 4.5e-13 m.
+
+```bash
+python tools/mpred/extract.py --can-zip can_bus.zip --out ~/workspace/drive-replay-data/can_scenes_v2
+python scripts/reproduce_mpred.py                    # regenerates docs/MOTION_PREDICTION.md, figures, predictors.json
+```
+
+Limits: open-loop replay; the reference is the car's own localization pose (filtering not documented; an ablation
+without pose-history inputs costs the MLP 2.5 %); one car type in urban traffic; white synthetic noise; latencies
+emulated on recorded timestamps; host timings. All numbers: [docs/MOTION_PREDICTION.md](docs/MOTION_PREDICTION.md).
+
 ## Limits, stated plainly
 
 - The stack is a compact radar FCW written for this project, not a production ADAS stack. It runs on x86
@@ -168,5 +201,5 @@ this repository; CI and `scripts/make_recordings.sh` rebuild them from the publi
 CAN bus expansion (`can_bus.zip`, https://motional-nuscenes.s3.amazonaws.com/public/v1.0/can_bus.zip, no login)
 is under the same CC BY-NC-SA 4.0 licence plus Motional's terms of use (its LICENSE file); it is not in the
 repository either, and neither is anything derived from it except aggregate numbers, figures, the identified
-parameters, the scene names of the split and the sha256 catalogue of the CAN recording set. The demo Space shows
+parameters, the fitted predictor parameters and weights (`configs/mpred/predictors.json`), the scene names of the split and the sha256 catalogue of the CAN recording set. The demo Space shows
 derived numbers only (speeds, TTC curves, events, model errors), with attribution.
