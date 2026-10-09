@@ -1,6 +1,6 @@
 [project]
 name = "drive-replay"
-version = "0.3.0"
+version = "0.4.0"
 description = "Replay recorded drives through an ADAS stack on x86: run command, bug replay, CI verdicts"
 requires-python = ">=3.11"
 license = { text = "MIT" }
@@ -20,6 +20,7 @@ ignore = ["E731"]
 [tool.ruff.lint.per-file-ignores]
 # report generator: long Markdown string literals
 "scripts/reproduce_vdyn.py" = ["E501"]
+"scripts/reproduce_mpred.py" = ["E501"]
 
 [tool.pytest.ini_options]
 testpaths = ["tools"]

@@ -41,7 +41,7 @@ at about 120x real time, 32 parallel jobs at about 1,650x; every recording gave 
 ## Quick start
 
 ```bash
-bazel test //...                                     # 7 C++ GoogleTest targets + 6 Python pytest targets
+bazel test //...                                     # 8 C++ GoogleTest targets + 10 Python pytest targets
 pip install -r tools/convert/requirements.txt
 scripts/make_recordings.sh /path/to/nuscenes         # v1.0-mini; checks every file against the catalogue
 ./replay drop build v0.2.0                           # stamped, optimised build of a tag in a git worktree

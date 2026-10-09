@@ -105,6 +105,15 @@ pre { font-family: var(--mono); font-size: 12.5px; background: var(--panel); bor
   <a href="https://github.com/pavanyadava007/drive-replay/blob/main/docs/VEHICLE_DYNAMICS.md">docs/VEHICLE_DYNAMICS.md</a>.</p>
   <div id="vdyn"><p class="note">Vehicle-dynamics data not available.</p></div>
 
+  <h2>Ego motion prediction for AR-HUD latency compensation (v0.4.0)</h2>
+  <p class="note">A head-up display draws contact-analog overlays for where the car will be when the frame is lit,
+  50-500 ms after the newest sensor sample. Twelve predictors (CV, CTRV, CTRA, kinematic and dynamic single track,
+  linear Kalman filters, an EKF on the CTRA state, ridge regression, a small MLP and two hybrids of EKF + learned
+  residual) are tuned on validation drives and compared on held-out test drives of the nuScenes CAN bus data; the
+  physics models, the EKF and the learned models also run in C++17. Full write-up:
+  <a href="https://github.com/pavanyadava007/drive-replay/blob/main/docs/MOTION_PREDICTION.md">docs/MOTION_PREDICTION.md</a>.</p>
+  <div id="mpred"><p class="note">Motion-prediction data not available.</p></div>
+
   <h2>The run command</h2>
 <pre>$ ./replay run 61 --drop v0.1.0
 recording : scene-0061  (data/recordings/scene-0061.mcap, sha256 63639827e136, vehicle n015)
@@ -122,5 +131,6 @@ requirements met: NO (1 false, 0 missed, 0 not radar-observable)</pre>
 </main>
 <script src="app.js"></script>
 <script src="vdyn.js"></script>
+<script src="mpred.js"></script>
 </body>
 </html>
