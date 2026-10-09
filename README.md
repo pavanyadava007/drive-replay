@@ -1,5 +1,15 @@
 # drive-replay
 
+[![AR-HUD motion prediction demo, 78 s video: no compensation vs CTRV vs EKF + MLP on a recorded right turn](docs/figures/hud_demo_poster.png)](https://pavanyadava07-drive-replay.static.hf.space/media/drive-replay-hud-demo.mp4)
+
+**[Interactive AR-HUD demo](https://pavanyadava07-drive-replay.static.hf.space/hud.html)** (v0.4.1): replay 10 recorded test
+drives and see where a navigation arrow 20 m ahead lands with no latency compensation, CTRV, an EKF and EKF + learned
+residuals, at 50-500 ms display latency and three noise levels. Every number comes from the v0.4.0 benchmark code and its
+fitted weights ([below](#ego-motion-prediction-for-ar-hud-latency-compensation-v040)). Video:
+[78 s, 16:9](https://pavanyadava07-drive-replay.static.hf.space/media/drive-replay-hud-demo.mp4) ·
+[4:5](https://pavanyadava07-drive-replay.static.hf.space/media/drive-replay-hud-demo-4x5.mp4). The driver view is a
+simulation from recorded nuScenes data, not a production HUD.
+
 Replay recorded drives through an ADAS stack on x86, and turn that into three everyday tools:
 
 1. **One run command.** `replay run scene-0061` resolves the recording (verified by sha256), the build drop,
@@ -173,9 +183,23 @@ checks that no prediction reads a later sample). Besides position and heading, t
   7.1-7.2 us p99 (100 RK4 steps), EKF + MLP 11.7 / 15.1 us; one frame (EKF step + EKF + MLP) is 16.1 us at p99, 1.6 % of a
   1 ms budget. Python vs C++ on all test predictions: max position difference 4.5e-13 m.
 
+- **Interactive demo (v0.4.1)**: `scripts/export_mpred_demo.py` runs the fitted predictors through the benchmark code
+  path on the whole test split (noise levels 0, 1, 2 with the report's seeds), picks 10 scenes by fixed rules (sharpest
+  yaw-rate change, most turning, steady curve, braking, ...; listed on the page) and writes `site/data/hud/`. Every
+  per-scene mean it exports is checked against the cached benchmark run (max difference 0.0), and a pytest compares
+  the stored values with direct predictor calls. `site/hud.html` (vanilla JS, canvas, no build step) draws a bird's-eye
+  view, a simulated driver view with the arrow of each method and the true target, and live errors.
+  `scripts/record_hud_demo.py` renders the video frame by frame from the page's scripted demo mode.
+
+![AR-HUD demo page](docs/figures/hud_page_desktop.png)
+
+Phone layout: [docs/figures/hud_page_mobile.png](docs/figures/hud_page_mobile.png).
+
 ```bash
 python tools/mpred/extract.py --can-zip can_bus.zip --out ~/workspace/drive-replay-data/can_scenes_v2
 python scripts/reproduce_mpred.py                    # regenerates docs/MOTION_PREDICTION.md, figures, predictors.json
+python scripts/export_mpred_demo.py                  # demo data for site/hud.html (about 15 s)
+python scripts/record_hud_demo.py                    # demo videos into site/media (Playwright + ffmpeg, about 6 min)
 ```
 
 Limits: open-loop replay; the reference is the car's own localization pose (filtering not documented; an ablation
@@ -202,4 +226,5 @@ CAN bus expansion (`can_bus.zip`, https://motional-nuscenes.s3.amazonaws.com/pub
 is under the same CC BY-NC-SA 4.0 licence plus Motional's terms of use (its LICENSE file); it is not in the
 repository either, and neither is anything derived from it except aggregate numbers, figures, the identified
 parameters, the fitted predictor parameters and weights (`configs/mpred/predictors.json`), the scene names of the split and the sha256 catalogue of the CAN recording set. The demo Space shows
-derived numbers only (speeds, TTC curves, events, model errors), with attribution.
+derived numbers (speeds, TTC curves, events, model errors) and, for the AR-HUD demo, derived pose tracks of 10 test
+scenes, under the same licence with attribution.
