@@ -1,0 +1,4 @@
+# tools/mpred and scripts/reproduce_mpred.py (installed into the project .venv, Python 3.11). numpy only for the
+# models and the MLP; matplotlib for the report figures.
+numpy==2.4.6
+matplotlib==3.10.7

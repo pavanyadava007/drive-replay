@@ -1,0 +1,45 @@
+load("@pypi//:requirements.bzl", "requirement")
+load("@rules_python//python:defs.bzl", "py_library", "py_test")
+
+# Ego motion prediction prototypes (AR-HUD latency compensation). extract.py is an offline data tool run from
+# the venv; scripts/reproduce_mpred.py runs the benchmark.
+py_library(
+    name = "mpred_lib",
+    srcs = [
+        "__init__.py",
+        "data.py",
+        "experiment.py",
+        "learn.py",
+        "metrics.py",
+        "models.py",
+        "predictors.py",
+        "//tools:__init__.py",
+    ],
+    imports = ["../.."],
+    visibility = ["//visibility:public"],
+    deps = [requirement("numpy")],
+)
+
+[py_test(
+    name = t,
+    size = "small",
+    srcs = [
+        "tests/__init__.py",
+        "tests/conftest.py",
+        "tests/" + t + ".py",
+        "//tools/replay:tests/pytest_main.py",
+    ],
+    args = ["$(location tests/" + t + ".py)"],
+    data = ["//stack/mpred:mpred_eval"],
+    main = "//tools/replay:tests/pytest_main.py",
+    deps = [
+        ":mpred_lib",
+        requirement("numpy"),
+        requirement("pytest"),
+    ],
+) for t in [
+    "test_causality",
+    "test_metrics_learn",
+    "test_models",
+    "test_parity",
+]]
