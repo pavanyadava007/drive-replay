@@ -21,6 +21,7 @@ ignore = ["E731"]
 # report generator: long Markdown string literals
 "scripts/reproduce_vdyn.py" = ["E501"]
 "scripts/reproduce_mpred.py" = ["E501"]
+"scripts/reproduce_unc.py" = ["E501"]
 
 [tool.pytest.ini_options]
 testpaths = ["tools"]

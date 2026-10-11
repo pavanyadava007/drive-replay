@@ -206,6 +206,27 @@ Limits: open-loop replay; the reference is the car's own localization pose (filt
 without pose-history inputs costs the MLP 2.5 %); one car type in urban traffic; white synthetic noise; latencies
 emulated on recorded timestamps; host timings. All numbers: [docs/MOTION_PREDICTION.md](docs/MOTION_PREDICTION.md).
 
+## Uncertainty estimation and a gated fallback (v0.5.0)
+
+Production dual stacks run a learned driving model next to a classic stack and hand over when the learned part does
+not know what to do. `tools/mpred/uncertainty.py` + `scripts/reproduce_unc.py` test that idea at small scale on the
+v0.4.0 predictors: the EKF + MLP residual hybrid is the learned part, the EKF-CTRA rollout alone is the fallback.
+Heteroscedastic MLPs in PyTorch (Gaussian NLL), a **deep ensemble** of 5, **MC dropout** (30 passes) and a single
+network are compared with a cheap **ego-state monitor** (logistic regression, no model internals) on the 200 ms / 20 m
+overlay offset: calibration (interval coverage, NLL), failure AUROC, risk-coverage, rare manoeuvres, and 2x / 4x
+input-noise shift; every threshold and scale comes from the validation split.
+
+- **Clean data**: per-frame failure detection is no better than the ego-state monitor (AUROC 0.721 ensemble vs 0.716,
+  difference +0.005 [-0.015, +0.025]), and gating costs accuracy (+0.19 cm), because the EKF is worse on those frames too.
+- **Shift**: the ensemble stays far better calibrated under 4x noise (calibration error 0.095 vs 0.268 single network,
+  0.287 MC dropout), its epistemic share rises from 2 % to 49 %, and the gate hands 99.9 % of frames to the EKF
+  (-1.25 cm [-1.35, -1.16] vs always learned); the ego monitor falls back on only 37 %.
+- **Cost** (PyTorch CPU, batch 1, 1 thread): single 131 us, ensemble 533 us, MC dropout 3.1 ms (p50).
+
+Limits: open-loop ego motion prediction, not an end-to-end driving model; synthetic white noise is easy to detect;
+one training run per model. All numbers: [docs/UNCERTAINTY.md](docs/UNCERTAINTY.md) (`python scripts/reproduce_unc.py`,
+about 4 min on CPU; needs torch, see tools/mpred/requirements.txt).
+
 ## Limits, stated plainly
 
 - The stack is a compact radar FCW written for this project, not a production ADAS stack. It runs on x86
